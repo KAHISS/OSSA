@@ -18,7 +18,7 @@ export async function POST(request: Request) {
                 birth_date: new Date(data.birth_date),
                 password: data.password,
                 phone: data.phone,
-                emergency_phone: data.emegency_phone,
+                emergency_phone: data.emergency_phone,
                 weight: data.weight,
                 type: data.type,
             }
