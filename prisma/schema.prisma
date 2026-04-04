@@ -9,20 +9,26 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id              String    @id @default(cuid())
+  name            String   
+  last_name       String
+  birth_date      DateTime
+  email           String
+  emailVerified   Boolean   @default(false)
+  password        String
+  image           String?
+  phone           String
+  emergency_phone String
+  weight          Decimal
+  type            UserType
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  sessions        Session[]
+  accounts        Account[]
 
   @@unique([email])
   @@map("user")
 }
-
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -69,4 +75,10 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum UserType {
+  Student
+  Instructor
+  Admin
 }
