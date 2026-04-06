@@ -2,10 +2,21 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-    const users = await prisma.user.findMany();
-    return NextResponse.json(users);
+    try {
+        const users = await prisma.user.findMany({
+            include: {
+                student: true,   
+                instructor: true,
+            }
+        });
+        
+        return NextResponse.json(users);
+        
+    } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+        return NextResponse.json({ error: "Falha ao buscar usuários" }, { status: 500 });
+    }
 }
-
 export async function POST(request: Request) {
     try {
         const data = await request.json();
@@ -23,10 +34,35 @@ export async function POST(request: Request) {
                 type: data.type,
             }
         });
+        
+        let responseData: any = { ...newUser };
 
-        return NextResponse.json(newUser, { status: 201 });
+        if (data.type === 'Student') {
+            const newStudent = await prisma.student.create({
+                data: {
+                    id: newUser.id, 
+                    belt: data.belt ?? 'WHITE',
+                    stripe: data.stripe ?? 0
+                }
+            });
+
+            responseData.student = newStudent;
+        } else if (data.type === 'Instructor') {
+            const newInstructor = await prisma.instructor.create({
+                data: {
+                    id: newUser.id,
+                    belt: data.belt ?? 'WHITE',
+                    stripe: data.stripe ?? 0,
+                    commisionPerStudent: data.commisionPerStudent ?? 0
+                }
+            });
+
+            responseData.instructor = newInstructor;
+        }
+
+        return NextResponse.json(responseData, { status: 201 });
     } catch (error) {
         console.error("Erro ao criar usuário:", error);
-        return NextResponse.json({ error: "Falha ao criar usuário" }, { status: 500 });
+        return NextResponse.json({ error: "Falha ao criar", details: error }, { status: 500 });
     }
 }
