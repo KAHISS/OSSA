@@ -1,0 +1,249 @@
+DROP DATABASE IF EXISTS academia_jiu_jitsu;
+
+CREATE DATABASE academia_jiu_jitsu;
+USE academia_jiu_jitsu;
+
+CREATE TABLE Usuario (
+    ID_usuario INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    sobrenome VARCHAR(255) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    peso DECIMAL(5, 2) UNSIGNED NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(30) NOT NULL,
+    telefone_pessoal VARCHAR(13) NOT NULL,
+    telefone_emergencial VARCHAR(13) NOT NULL,
+    tipo ENUM("Aluno", "Instrutor", "Administrador") NOT NULL
+);
+
+CREATE TABLE Turma (
+    id_turma INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    quantidade_alunos TINYINT UNSIGNED NOT NULL,
+    id_filial INTEGER UNSIGNED NOT NULL,
+    id_instrutor INTEGER UNSIGNED NOT NULL
+);
+
+CREATE TABLE Categoria (
+    id_categoria INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao VARCHAR(1255),
+    faixa_etaria VARCHAR(30) NOT NULL,
+    faixa_peso VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Filial (
+    id_filial INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    logradouro VARCHAR(255) NOT NULL,
+    bairro VARCHAR(255) NOT NULL,
+    numero INTEGER UNSIGNED NOT NULL,
+    CEP VARCHAR(8) NOT NULL,
+    cidade VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Pagamento (
+    id_pagamento INTEGER UNSIGNED AUTO_INCREMENT,
+    id_aluno INTEGER UNSIGNED,
+    data_vencimento DATETIME NOT NULL,
+    metodo_pagamento ENUM("PIX", "Boleto", "Credito", "Debito") NOT NULL,
+    valor DECIMAL(6, 2) UNSIGNED NOT NULL,
+    data_pagamento DATETIME,
+    tipo ENUM("Plano", "Graduacao", "Outro") NOT NULL,
+    PRIMARY KEY (id_pagamento, id_aluno)
+);
+
+CREATE TABLE Cerimonia (
+    id_cerimonia INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    data DATETIME NOT NULL,
+    cidade VARCHAR(255) NOT NULL,
+    CEP VARCHAR(8) NOT NULL,
+    numero INTEGER UNSIGNED NOT NULL,
+    logradouro VARCHAR(255) NOT NULL,
+    bairro VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Termo (
+    id_termo INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    conteudo TEXT NOT NULL,
+    versao INTEGER UNSIGNED NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_modificacao DATETIME NOT NULL
+);
+
+CREATE TABLE Ficha_Medica (
+    id_ficha_medica INTEGER UNSIGNED AUTO_INCREMENT,
+    id_aluno INTEGER UNSIGNED,
+    prescricao_medica TEXT NOT NULL,
+    data_atual_ficha DATETIME NOT NULL DEFAULT NOW(),
+    outros TEXT NOT NULL,
+    PRIMARY KEY (id_ficha_medica, id_aluno)
+);
+
+CREATE TABLE Plano (
+    id_plano INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    periodo VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    valor DECIMAL(6, 2) UNSIGNED NOT NULL,
+    data_modificacao DATETIME NOT NULL
+);
+
+CREATE TABLE Instrutor (
+    id_instrutor INTEGER UNSIGNED NOT NULL  PRIMARY KEY,
+    comissao_por_aluno DECIMAL(6, 2) UNSIGNED NOT NULL,
+    faixa ENUM("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10") NOT NULL,
+    grau ENUM("1","2","3","4")
+);
+
+CREATE TABLE Aluno (
+    id_aluno INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+    faixa ENUM("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10") NOT NULL,
+    grau ENUM("1","2","3","4") NOT NULL
+);
+
+CREATE TABLE Publicacao (
+    id_publicacao INTEGER UNSIGNED AUTO_INCREMENT,
+    id_instrutor INTEGER UNSIGNED NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_modificacao DATETIME NOT NULL,
+    titulo VARCHAR(255) NOT NULL,
+    conteudo TEXT NOT NULL,
+    PRIMARY KEY (id_publicacao, id_instrutor)
+);
+
+CREATE TABLE Horario (
+    id_horario INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_turma INTEGER UNSIGNED NOT NULL,
+    dia ENUM("0", "1", "2", "3", "4", "5", "6") NOT NULL,
+    horario_inicio TIME NOT NULL
+);
+
+CREATE TABLE Matricula (
+    id_turma INTEGER UNSIGNED NOT NULL,
+    id_aluno INTEGER UNSIGNED NOT NULL,
+    id_horario INTEGER UNSIGNED,
+    data_matricula DATETIME NOT NULL,
+    PRIMARY KEY (id_turma, id_aluno, id_horario)
+);
+
+CREATE TABLE Inscricao (
+    id_plano INTEGER UNSIGNED NOT NULL,
+    id_aluno INTEGER UNSIGNED NOT NULL,
+    data_matricula DATETIME NOT NULL,
+    valor DECIMAL(5,2),
+    PRIMARY KEY (id_plano, id_aluno, data_matricula)
+);
+
+CREATE TABLE Graduacao (
+    id_cerimonia INTEGER UNSIGNED NOT NULL,
+    id_aluno INTEGER UNSIGNED NOT NULL,
+    tipo ENUM("Faixa", "Grau") NOT NULL,
+    faixa_atual ENUM("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10") NOT NULL,
+    grau_atual ENUM("1","2","3","4") NOT NULL,
+    PRIMARY KEY (id_cerimonia, id_aluno)
+);
+
+CREATE TABLE Assinatura (
+    id_aluno INTEGER UNSIGNED NOT NULL,
+    id_termo INTEGER UNSIGNED NOT NULL,
+    data_assinatura DATETIME NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id_termo, id_aluno)
+);
+
+CREATE TABLE Observacao (
+    data_observacao DATETIME NOT NULL,
+    id_instrutor INTEGER UNSIGNED NOT NULL,
+    id_aluno INTEGER UNSIGNED NOT NULL,
+    conteudo TEXT NOT NULL
+    PRIMARY KEY (id_instrutor, id_aluno, data_observacao)
+);
+
+CREATE TABLE Associacao_Categoria (
+    id_aluno INTEGER UNSIGNED,
+    id_categoria INTEGER UNSIGNED,
+    data_associacao DATETIME NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id_aluno, id_categoria)
+);
+ 
+ALTER TABLE Turma ADD CONSTRAINT FK_Turma_2
+    FOREIGN KEY (id_instrutor)
+    REFERENCES Instrutor (id_instrutor);
+ 
+ALTER TABLE Turma ADD CONSTRAINT FK_Turma_3
+    FOREIGN KEY (id_filial)
+    REFERENCES Filial (id_filial);
+ 
+ALTER TABLE Pagamento ADD CONSTRAINT FK_Pagamento_2
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Ficha_Medica ADD CONSTRAINT FK_Ficha_Medica_2
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Instrutor ADD CONSTRAINT FK_Instrutor_2
+    FOREIGN KEY (id_instrutor)
+    REFERENCES Usuario (ID_usuario);
+ 
+ALTER TABLE Aluno ADD CONSTRAINT FK_Aluno_2
+    FOREIGN KEY (id_aluno)
+    REFERENCES Usuario (ID_usuario);
+ 
+ALTER TABLE Publicacao ADD CONSTRAINT FK_Publicacao_2
+    FOREIGN KEY (id_instrutor)
+    REFERENCES Instrutor (id_instrutor);
+ 
+ALTER TABLE Horario ADD CONSTRAINT FK_Horario_1
+    FOREIGN KEY (id_turma)
+    REFERENCES Turma (id_turma);
+ 
+ALTER TABLE Matricula ADD CONSTRAINT FK_Matricula_1
+    FOREIGN KEY (id_turma)
+    REFERENCES Turma (id_turma);
+ 
+ALTER TABLE Matricula ADD CONSTRAINT FK_Matricula_3
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Matricula ADD CONSTRAINT FK_Matricula_4
+    FOREIGN KEY (id_horario)
+    REFERENCES Horario (id_horario);
+ 
+ALTER TABLE Inscricao ADD CONSTRAINT FK_Inscricao_1
+    FOREIGN KEY (id_plano)
+    REFERENCES Plano (id_plano);
+ 
+ALTER TABLE Inscricao ADD CONSTRAINT FK_Inscricao_3
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Graduacao ADD CONSTRAINT FK_Graduacao_1
+    FOREIGN KEY (id_cerimonia)
+    REFERENCES Cerimonia (id_cerimonia);
+ 
+ALTER TABLE Graduacao ADD CONSTRAINT FK_Graduacao_2
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Assinatura ADD CONSTRAINT FK_Assinatura_2
+    FOREIGN KEY (id_termo)
+    REFERENCES Termo (id_termo);
+ 
+ALTER TABLE Assinatura ADD CONSTRAINT FK_Assinatura_3
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Observacao ADD CONSTRAINT FK_Observacao_2
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Observacao ADD CONSTRAINT FK_Observacao_3
+    FOREIGN KEY (id_instrutor)
+    REFERENCES Instrutor (id_instrutor);
+ 
+ALTER TABLE Associacao_Categoria ADD CONSTRAINT FK_Associacao_Categoria_2
+    FOREIGN KEY (id_aluno)
+    REFERENCES Aluno (id_aluno);
+ 
+ALTER TABLE Associacao_Categoria ADD CONSTRAINT FK_Associacao_Categoria_3
+    FOREIGN KEY (id_categoria)
+    REFERENCES Categoria (id_categoria);
