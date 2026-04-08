@@ -19,16 +19,37 @@ model User {
   image           String?
   phone           String
   emergency_phone String
-  weight          Decimal
+  weight          Decimal   @db.Decimal(5, 2)
   type            UserType
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   sessions        Session[]
   accounts        Account[]
 
+  student         Student?
+  instructor      Instructor?
+
   @@unique([email])
   @@map("user")
 }
+
+model Student {
+  id      String @id
+  belt    Belt
+  stripe  Int
+
+  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model Instructor {
+  id                  String @id
+  belt                Belt    
+  stripe              Int
+  commisionPerStudent Decimal @db.Decimal(6, 2)
+
+  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -81,6 +102,20 @@ enum UserType {
   Student
   Instructor
   Admin
+}
+
+enum Belt {
+  WHITE   
+  GRAY    
+  YELLOW  
+  ORANGE  
+  GREEN   
+  BLUE    
+  PURPLE  
+  BROWN   
+  BLACK   
+  CORAL   
+  RED     
 }
 
 model Categoria {
