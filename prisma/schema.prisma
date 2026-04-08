@@ -117,3 +117,11 @@ enum Belt {
   CORAL   
   RED     
 }
+
+model Categoria {
+  id_categoria Int     @id @default(autoincrement())
+  nome         String
+  descricao    String?  @db.VarChar(1255)
+  faixa_etaria String   @db.VarChar(30)
+  faixa_peso   String   @db.VarChar(30)
+}
