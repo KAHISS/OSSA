@@ -11,10 +11,13 @@ import { prisma } from '@/lib/prisma';
 // GET /api/categorias/:id -> busca por ID
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const categoria = await prisma.categoria.findUnique({
-    where: { id_categoria: Number(params.id) },
+
+  const { id } = await params;
+
+  const categoria = await prisma.category.findUnique({
+    where: { id: id },
   });
 
   if (!categoria) {
@@ -26,16 +29,21 @@ export async function GET(
 
 // PUT /api/categorias/:id -> atualiza
 export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await req.json();
-    const { nome, descricao, faixa_etaria, faixa_peso } = body;
+    const { id } = await params;
+    const data = await request.json();
 
-    const categoria = await prisma.categoria.update({
-      where: { id_categoria: Number(params.id) },
-      data: { nome, descricao, faixa_etaria, faixa_peso },
+    const categoria = await prisma.category.update({
+      where: { id: id },
+      data: {
+        name: data.name,
+        description: data.description,
+        age_group: data.age_group,
+        weight_range: data.weight_range,
+      },
     });
 
     return NextResponse.json(categoria);
@@ -49,12 +57,13 @@ export async function PUT(
 
 // DELETE /api/categorias/:id -> remove
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await prisma.categoria.delete({
-      where: { id_categoria: Number(params.id) },
+    const { id } = await params;
+    await prisma.category.delete({
+      where: { id: id },
     });
 
     return NextResponse.json({ message: 'Categoria removida com sucesso' });

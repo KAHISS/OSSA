@@ -37,8 +37,9 @@ model Student {
   id      String @id
   belt    Belt
   stripe  Int
+  user    User   @relation(fields: [id], references: [id], onDelete: Cascade)
 
-  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  @@map("student")
 }
 
 model Instructor {
@@ -46,8 +47,9 @@ model Instructor {
   belt                Belt    
   stripe              Int
   commisionPerStudent Decimal @db.Decimal(6, 2)
+  user                User   @relation(fields: [id], references: [id], onDelete: Cascade)
 
-  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  @@map("instructor")
 }
 
 model Session {
@@ -118,10 +120,12 @@ enum Belt {
   RED     
 }
 
-model Categoria {
-  id_categoria Int     @id @default(autoincrement())
-  nome         String
-  descricao    String?  @db.VarChar(1255)
-  faixa_etaria String   @db.VarChar(30)
-  faixa_peso   String   @db.VarChar(30)
+model Category {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?  @db.VarChar(1255)
+  age_group    String   @db.VarChar(30)
+  weight_range String   @db.VarChar(30)
+
+  @@map("category")
 }
