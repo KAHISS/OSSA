@@ -32,35 +32,27 @@ export async function POST(request: Request) {
                 emergency_phone: data.emergency_phone,
                 weight: data.weight,
                 type: data.type,
+                student: data.type === 'Student' ? {
+                    create: {
+                        belt: data.belt ?? 'WHITE',
+                        stripe: data.stripe ?? 0
+                    }
+                } : undefined,
+                instructor: data.type === 'Instructor' ? {
+                    create: {
+                        belt: data.belt ?? 'WHITE',
+                        stripe: data.stripe ?? 0,
+                        commisionPerStudent: data.commisionPerStudent ?? 0
+                    }
+                } : undefined,
+            },
+            include: {
+                student: true,
+                instructor: true
             }
         });
-        
-        let responseData: any = { ...newUser };
 
-        if (data.type === 'Student') {
-            const newStudent = await prisma.student.create({
-                data: {
-                    id: newUser.id, 
-                    belt: data.belt ?? 'WHITE',
-                    stripe: data.stripe ?? 0
-                }
-            });
-
-            responseData.student = newStudent;
-        } else if (data.type === 'Instructor') {
-            const newInstructor = await prisma.instructor.create({
-                data: {
-                    id: newUser.id,
-                    belt: data.belt ?? 'WHITE',
-                    stripe: data.stripe ?? 0,
-                    commisionPerStudent: data.commisionPerStudent ?? 0
-                }
-            });
-
-            responseData.instructor = newInstructor;
-        }
-
-        return NextResponse.json(responseData, { status: 201 });
+        return NextResponse.json(newUser, { status: 201 });
     } catch (error) {
         console.error("Erro ao criar usuário:", error);
         return NextResponse.json({ error: "Falha ao criar", details: error }, { status: 500 });

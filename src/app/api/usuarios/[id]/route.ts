@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { User, Prisma } from '@generated/prisma/client';
 
 export async function PUT(
     request: Request,
@@ -20,7 +21,7 @@ export async function PUT(
             await prisma.instructor.deleteMany({ where: { id: id } });
         }
 
-        const updateData: any = {
+        const updateData: Prisma.UserUpdateInput = {
             name: data.name,
             last_name: data.last_name,
             email: data.email,
