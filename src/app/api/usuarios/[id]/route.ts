@@ -2,6 +2,24 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { User, Prisma } from '@generated/prisma/client';
 
+export async function GET(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+
+        const user = await prisma.user.findUnique({
+            where: { id: id },
+        });
+
+        return NextResponse.json(user);
+    } catch (error) {
+        console.error("Erro ao atualizar usuário:", error);
+        return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
+    }
+}
+
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -12,10 +30,10 @@ export async function PUT(
 
         if (data.type === 'Student') {
             await prisma.instructor.deleteMany({ where: { id: id } });
-        } 
+        }
         else if (data.type === 'Instructor') {
             await prisma.student.deleteMany({ where: { id: id } });
-        } 
+        }
         else {
             await prisma.student.deleteMany({ where: { id: id } });
             await prisma.instructor.deleteMany({ where: { id: id } });
@@ -73,7 +91,7 @@ export async function PUT(
         });
 
         return NextResponse.json(updatedUser, { status: 200 });
-        
+
     } catch (error) {
         console.error("Erro ao atualizar usuário:", error);
         return NextResponse.json({ error: "Falha ao atualizar usuário", details: error }, { status: 500 });
