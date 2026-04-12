@@ -13,13 +13,22 @@ export async function GET(
             where: { id: id },
         });
 
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Usuário não encontrado' },
+                { status: 404 }
+            );
+        }
+
         return NextResponse.json(user);
     } catch (error) {
-        console.error("Erro ao atualizar usuário:", error);
-        return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
+        console.error("Erro interno ao buscar usuário:", error);
+        return NextResponse.json(
+            { error: 'Erro interno no servidor' },
+            { status: 500 }
+        );
     }
 }
-
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
