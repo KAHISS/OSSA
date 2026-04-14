@@ -23,23 +23,21 @@ export function AvatarDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center gap-3 justify-center p-3">
-            <Button variant="ghost" className="">
-                <Avatar className="bg-b">
-                    <AvatarImage alt="shadcn" />
-                    <AvatarFallback className="bg-black text-white border-2 border-white">AD</AvatarFallback>
-                </Avatar>
-                <span className={`text-black text-2xl font-bold ${bebas.className}`}>Administrador</span>
-            </Button>
-        </div>
+        <Button className="flex items-center gap-3 h-14 justify-center p-3 cursor-pointer">
+            <Avatar className="bg-b">
+                <AvatarImage alt="shadcn" />
+                <AvatarFallback className="bg-black text-white border-2 border-white">AD</AvatarFallback>
+            </Avatar>
+            <span className={`text-white text-2xl font-bold ${bebas.className}`}>Administrador</span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-32">
         <DropdownMenuGroup>
-          <DropdownMenuItem>Perfil</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">Perfil</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">Log out</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" className="cursor-pointer">Log out</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

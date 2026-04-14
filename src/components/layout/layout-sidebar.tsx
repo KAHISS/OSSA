@@ -68,7 +68,7 @@ export function AppSidebar() {
             {modules.map((module) => (
               <SidebarMenuButton 
                 key={module.id}
-                className="text-white text-lg font-bold bg-zinc-900 hover:bg-red-500 hover:text-white font-mono h-10 flex items-center justify-between"
+                className="text-white text-lg font-bold bg-zinc-900 hover:bg-red-500 transition-colors duration-300 hover:text-white font-mono h-10 flex items-center justify-between cursor-pointer"
                 variant={"outline"}
               >
                 <a href={`${module.href}`} className={`text-center ${anton.className}`}>{module.name}</a>
@@ -81,8 +81,11 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup title="Settings" />
       </SidebarContent>
-      <SidebarFooter className="w-full h-25 bg-zinc-900" >
+      <SidebarFooter className="flex flex-col justify-center w-full h-25 bg-zinc-900" >
         <AvatarDropdown/>
+        <div className="flex justify-center">
+          <span className="text-gray-500">Ossa! {new Date().getFullYear()}</span>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )

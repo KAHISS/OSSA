@@ -6,7 +6,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <main className="w-full flex flex-col gap-2">
-        <SidebarTrigger size={"icon"} className="text-2xl"/>
+        <SidebarTrigger size={"icon"} className="text-2xl hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer"/>
         {children}
       </main>
     </SidebarProvider>
