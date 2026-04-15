@@ -54,7 +54,7 @@ export default function UsersPage() {
                 </TableHeader>
                 <TableBody>
                     <TableRow>
-                        <TableCell className="max-w-[150px]"> {/*limite de largura aqui */}
+                        <TableCell className="max-w-[150px]">
                             <HoverCard>
                                 <HoverCardTrigger asChild>
                                     <div className="truncate cursor-help font-medium">
@@ -62,10 +62,8 @@ export default function UsersPage() {
                                     </div>
                                 </HoverCardTrigger>
                                 <HoverCardContent className="w-80">
-                                    <div className="flex flex-col gap-2">
-                                        <h4 className="text-sm font-semibold">Nome Completo</h4>
-                                        <p className="text-sm">João de Santo Cristo Silva Sauro Terceiro</p>
-                                    </div>
+                                    <h1>Nome Completo: </h1>
+                                    <p>João de Santo Cristo Silva Sauro Terceiro</p>
                                 </HoverCardContent>
                             </HoverCard>
                         </TableCell>
