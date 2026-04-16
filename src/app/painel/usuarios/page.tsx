@@ -56,7 +56,7 @@ export default async function UsersPage() {
                 </div>
             </div>
 
-            {users &&
+            {users && (
                 <Table className="text-base">
                     <TableHeader>
                         <TableRow className="font-bold text-[20px]">
@@ -69,39 +69,46 @@ export default async function UsersPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {users.map((user: User) => (
-                            <TableRow key={user.id}>
-                                <TableCell className="max-w-[150px]">
-                                    <HoverCard>
-                                        <HoverCardTrigger asChild className="truncate cursor-help font-bold">
-                                            <div>
-                                                {user.name}
-                                            </div>
-                                        </HoverCardTrigger>
-                                        <HoverCardContent className="w-80">
-                                            <h1>Nome Completo: </h1>
-                                            <p>{user.name}</p>
-                                        </HoverCardContent>
-                                    </HoverCard>
-                                </TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>{user.phone}</TableCell>
-                                <TableCell>{user.weight}Kg</TableCell>
-                                <TableCell>
-                                    {user.type === 'Student'
-                                        ? 'Aluno'
-                                        : user.type === 'Instructor'
-                                            ? 'Instrutor'
-                                            : 'Administrador'}
-                                </TableCell>
-                                <TableCell className="flex justify-end gap-2 py-4">
-                                    <Button size="sm" variant="outline" className="text-[18px] text-black hover:bg-red-50 hover:border-red-500 h-10 w-20">Editar</Button>
-                                    <Button size="sm" className="text-[18px] bg-red-600 hover:bg-red-700 text-white h-10 w-20">Excluir</Button>
+                        {users.length > 0 ? (
+                            users.map((user: User) => (
+                                <TableRow key={user.id}>
+                                    <TableCell className="max-w-[150px]">
+                                        <HoverCard>
+                                            <HoverCardTrigger asChild className="truncate cursor-help font-bold">
+                                                <div>{user.name}</div>
+                                            </HoverCardTrigger>
+                                            <HoverCardContent className="w-80">
+                                                <h1>Nome Completo: </h1>
+                                                <p>{user.name}</p>
+                                            </HoverCardContent>
+                                        </HoverCard>
+                                    </TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>{user.phone}</TableCell>
+                                    <TableCell>{user.weight}Kg</TableCell>
+                                    <TableCell>
+                                        {user.type === 'Student'
+                                            ? 'Aluno'
+                                            : user.type === 'Instructor'
+                                                ? 'Instrutor'
+                                                : 'Administrador'}
+                                    </TableCell>
+                                    <TableCell className="flex justify-end gap-2 py-4">
+                                        <Button size="sm" variant="outline" className="text-[18px] text-black hover:bg-red-50 hover:border-red-500 h-10 w-20">Editar</Button>
+                                        <Button size="sm" className="text-[18px] bg-red-600 hover:bg-red-700 text-white h-10 w-20">Excluir</Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="h-24 text-center text-gray-500 text-lg">
+                                    Não há usuários cadastrados no momento.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
-                </Table>}
+                </Table>
+            )}
         </div>
     );
 }
