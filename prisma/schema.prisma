@@ -43,11 +43,11 @@ model Student {
 }
 
 model Instructor {
-  id                  String @id
-  belt                Belt    
-  stripe              Int
-  commisionPerStudent Decimal @db.Decimal(6, 2)
-  user                User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  id                    String @id
+  belt                  Belt    
+  stripe                Int
+  commissionPerStudent  Decimal @db.Decimal(6, 2)
+  user                  User   @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("instructor")
 }
