@@ -51,7 +51,17 @@ const bebas = Bebas_Neue({
     weight: ['400'],
 });
 
-export default async function UsersPage({ searchParams }: { searchParams: { tipo?: string } }) {
+const beltDictionary: Record<string, string> = {
+    WHITE: "Branca",
+    BLUE: "Azul",
+    PURPLE: "Roxa",
+    BROWN: "Marrom",
+    BLACK: "Preta",
+    CORAL: "Coral",
+    RED: "Vermelha"
+};
+
+export default async function UsersPage({ searchParams }: { searchParams: { tipo?: string, sexo?: string } }) {
     const users = await prisma.user.findMany({
         include: {
             student: true,
@@ -61,7 +71,14 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
 
     const params = await searchParams;
 
-    const filtroAtual = params.tipo || 'todos';
+    const filtroTipo = params.tipo || 'todos';
+    const filtroSexo = params.sexo || 'todos';
+
+    const criarLinkFiltro = (nomeDoFiltro: string, valor: string) => {
+        const novosParametros = new URLSearchParams(params as Record<string, string>);
+        novosParametros.set(nomeDoFiltro, valor);
+        return `?${novosParametros.toString()}`;
+    };
 
     return (
         <div className={`my-10 mx-10 font-thin ${oswald.className}`}>
@@ -81,21 +98,36 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8 space-y-6">
                 <h2 className="text-xl font-bold text-gray-800">Filtros de Busca</h2>
 
-                <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit mx-auto">
-                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroAtual === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                        <Link href="?tipo=todos">Todos</Link>
-                    </Button>
-                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroAtual === 'alunos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                        <Link href="?tipo=alunos">Alunos</Link>
-                    </Button>
-                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroAtual === 'instrutores' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                        <Link href="?tipo=instrutores">Instrutores</Link>
-                    </Button>
-                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroAtual === 'admins' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                        <Link href="?tipo=admins">Admins</Link>
-                    </Button>
-                </div>
+                <div className="flex flex-wrap items-center justify-between w-full gap-4">
 
+                    <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroTipo === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('tipo', 'todos')}>Todos</Link>
+                        </Button>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroTipo === 'alunos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('tipo', 'alunos')}>Alunos</Link>
+                        </Button>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroTipo === 'instrutores' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('tipo', 'instrutores')}>Instrutores</Link>
+                        </Button>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroTipo === 'admins' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('tipo', 'admins')}>Admins</Link>
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('sexo', 'todos')}>Todos</Link>
+                        </Button>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'm' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('sexo', 'm')}>Homens</Link>
+                        </Button>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'f' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                            <Link href={criarLinkFiltro('sexo', 'f')}>Mulheres</Link>
+                        </Button>
+                    </div>
+
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700">Faixa</label>
@@ -105,7 +137,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                             </SelectTrigger>
                             <SelectContent className={oswald.className}>
                                 <SelectGroup>
-                                    <SelectLabel>Graduação</SelectLabel>
+                                    <SelectLabel>Faixas</SelectLabel>
 
                                     <SelectItem value="todas">
                                         <span className="ml-6">Todas as faixas</span>
@@ -216,6 +248,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                     <TableRow className="font-bold text-[20px]">
                         <TableHead className="w-[150px]">Usuário</TableHead>
                         <TableHead>Email</TableHead>
+                        <TableHead>Sexo</TableHead>
                         <TableHead>Telefone</TableHead>
                         <TableHead>Nascimento</TableHead>
                         <TableHead>Peso</TableHead>
@@ -236,13 +269,16 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                                             {user.name} {user.last_name}
                                         </HoverCardTrigger>
                                         <HoverCardContent className="w-80">
-                                            <h1>Nome Completo: </h1>
+                                            <h1 className="font-bold">Nome Completo: </h1>
                                             <p>{user.name} {user.last_name}</p>
                                         </HoverCardContent>
                                     </HoverCard>
                                 </TableCell>
 
                                 <TableCell>{user.email}</TableCell>
+
+                                <TableCell>{user.sex === 'M' ? 'Masc.' : user.sex === 'F' ? 'Fem.' : '-'}</TableCell>
+
                                 <TableCell>{user.phone}</TableCell>
 
                                 <TableCell>
@@ -251,11 +287,18 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
 
                                 <TableCell>{user.weight ? `${user.weight.toString()}Kg` : '-'}</TableCell>
 
-                                <TableCell>{user.student?.belt || '-'}</TableCell>
+                                <TableCell className="capitalize">
+                                    {(() => {
+                                        const userBelt = user.student?.belt || user.instructor?.belt;
+
+                                        return userBelt ? beltDictionary[userBelt] || userBelt : '-';
+                                    })()}
+                                </TableCell>
 
                                 <TableCell>
-                                    {user.student?.stripe || '-'}
+                                    {user.student?.stripe ?? user.instructor?.stripe ?? '-'}
                                 </TableCell>
+
                                 <TableCell>
                                     {user.type === 'Student'
                                         ? 'Aluno'
@@ -265,7 +308,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                                 </TableCell>
 
                                 <TableCell>
-                                    {user.instructor?.commissionPerStudent ? `${user.instructor.commissionPerStudent.toString()}%` : '-'}
+                                    {user.instructor?.commissionPerStudent ? `R$ ${user.instructor.commissionPerStudent.toString()}` : '-'}
                                 </TableCell>
 
                                 <TableCell className="flex justify-end gap-2 py-4">
@@ -280,7 +323,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={10} className="h-24 text-center text-gray-500 text-lg">
+                            <TableCell colSpan={11} className="h-24 text-center text-gray-500 text-lg">
                                 Não há usuários cadastrados no momento.
                             </TableCell>
                         </TableRow>

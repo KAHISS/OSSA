@@ -26,6 +26,7 @@ export async function POST(request: Request) {
                 name: data.name,
                 last_name: data.last_name,
                 email: data.email,
+                sex: data.sex,
                 birth_date: new Date(data.birth_date),
                 password: data.password,
                 phone: data.phone,
