@@ -77,7 +77,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                     </Button>
                 </div>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8 space-y-6">
                 <h2 className="text-xl font-bold text-gray-800">Filtros de Busca</h2>
 
@@ -106,14 +106,59 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                             <SelectContent className={oswald.className}>
                                 <SelectGroup>
                                     <SelectLabel>Graduação</SelectLabel>
-                                    <SelectItem value="todas">Todas as faixas</SelectItem>
-                                    <SelectItem value="branca">Faixa Branca</SelectItem>
-                                    <SelectItem value="azul">Faixa Azul</SelectItem>
-                                    <SelectItem value="roxa">Faixa Roxa</SelectItem>
-                                    <SelectItem value="marrom">Faixa Marrom</SelectItem>
-                                    <SelectItem value="preta">Faixa Preta</SelectItem>
-                                    <SelectItem value="coral">Faixa Coral (Vermelha e Preta)</SelectItem>
-                                    <SelectItem value="vermelha">Faixa Vermelha</SelectItem>
+
+                                    <SelectItem value="todas">
+                                        <span className="ml-6">Todas as faixas</span>
+                                    </SelectItem>
+
+                                    <SelectItem value="branca">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 bg-white border border-gray-300 rounded-sm shadow-sm"></div>
+                                            <span>Faixa Branca</span>
+                                        </div>
+                                    </SelectItem>
+
+                                    <SelectItem value="azul">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 bg-blue-600 rounded-sm shadow-sm"></div>
+                                            <span>Faixa Azul</span>
+                                        </div>
+                                    </SelectItem>
+
+                                    <SelectItem value="roxa">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 bg-purple-600 rounded-sm shadow-sm"></div>
+                                            <span>Faixa Roxa</span>
+                                        </div>
+                                    </SelectItem>
+
+                                    <SelectItem value="marrom">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 bg-[#5C4033] rounded-sm shadow-sm"></div>
+                                            <span>Faixa Marrom</span>
+                                        </div>
+                                    </SelectItem>
+
+                                    <SelectItem value="preta">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 bg-black rounded-sm shadow-sm"></div>
+                                            <span>Faixa Preta</span>
+                                        </div>
+                                    </SelectItem>
+
+                                    <SelectItem value="coral">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded-sm shadow-sm bg-[linear-gradient(to_bottom_right,#ef4444_50%,#000000_50%)]"></div>
+                                            <span>Faixa Coral (Vermelha e Preta)</span>
+                                        </div>
+                                    </SelectItem>
+
+                                    <SelectItem value="vermelha">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm"></div>
+                                            <span>Faixa Vermelha</span>
+                                        </div>
+                                    </SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
