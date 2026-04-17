@@ -42,7 +42,7 @@ export async function POST(request: Request) {
                     create: {
                         belt: data.belt ?? 'WHITE',
                         stripe: data.stripe ?? 0,
-                        commisionPerStudent: data.commisionPerStudent ?? 0
+                        commissionPerStudent: data.commisionPerStudent ?? 0
                     }
                 } : undefined,
             },

@@ -59,6 +59,8 @@ export function AppSidebar() {
           width={150}
           height={24}
           className="dark:invert"
+          loading="eager"
+          style={{ width: 'auto', height: 'auto' }}
         />
       </SidebarHeader>
       <SidebarContent className="bg-zinc-900">   
