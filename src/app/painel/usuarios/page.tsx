@@ -40,9 +40,9 @@ export default function UsersPage() {
                 </Button>
             </div>
 
-            <Table className="text-base">
+            <Table className="text-xl">
                 <TableHeader>
-                    <TableRow className="font-normal text-[20px]">
+                    <TableRow className="font-normal text-[22px]">
                         <TableHead className="w-[100px]">Nome</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Telefone</TableHead>
