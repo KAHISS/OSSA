@@ -99,7 +99,6 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                 <h2 className="text-xl font-bold text-gray-800">Filtros de Busca</h2>
 
                 <div className="flex flex-wrap items-center justify-between w-full gap-4">
-
                     <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
                         <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroTipo === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
                             <Link href={criarLinkFiltro('tipo', 'todos')}>Todos</Link>
@@ -119,16 +118,47 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                         <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
                             <Link href={criarLinkFiltro('sexo', 'todos')}>Todos</Link>
                         </Button>
-                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'm' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'm' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
                             <Link href={criarLinkFiltro('sexo', 'm')}>Homens</Link>
                         </Button>
-                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'f' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                        <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtroSexo === 'f' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
                             <Link href={criarLinkFiltro('sexo', 'f')}>Mulheres</Link>
                         </Button>
                     </div>
-
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Nome Completo</label>
+                        <div className="relative w-full">
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Input placeholder="Digite o nome..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">E-mail</label>
+                        <div className="relative w-full">
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Input placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Telefone Pessoal</label>
+                        <div className="relative w-full">
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Input placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                        </div>
+                    </div>
+                
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Telefone de Emergência</label>
+                        <div className="relative w-full">
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Input placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                        </div>
+                    </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700">Faixa</label>
                         <Select defaultValue="todas">
@@ -138,53 +168,43 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                             <SelectContent className={oswald.className}>
                                 <SelectGroup>
                                     <SelectLabel>Faixas</SelectLabel>
-
-                                    <SelectItem value="todas">
-                                        <span className="ml-6">Todas as faixas</span>
-                                    </SelectItem>
-
+                                    <SelectItem value="todas"><span className="ml-6">Todas as faixas</span></SelectItem>
                                     <SelectItem value="branca">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-white border border-gray-300 rounded-sm shadow-sm"></div>
                                             <span>Faixa Branca</span>
                                         </div>
                                     </SelectItem>
-
                                     <SelectItem value="azul">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-blue-600 rounded-sm shadow-sm"></div>
                                             <span>Faixa Azul</span>
                                         </div>
                                     </SelectItem>
-
                                     <SelectItem value="roxa">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-purple-600 rounded-sm shadow-sm"></div>
                                             <span>Faixa Roxa</span>
                                         </div>
                                     </SelectItem>
-
                                     <SelectItem value="marrom">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-[#5C4033] rounded-sm shadow-sm"></div>
                                             <span>Faixa Marrom</span>
                                         </div>
                                     </SelectItem>
-
                                     <SelectItem value="preta">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-black rounded-sm shadow-sm"></div>
                                             <span>Faixa Preta</span>
                                         </div>
                                     </SelectItem>
-
                                     <SelectItem value="coral">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 rounded-sm shadow-sm bg-[linear-gradient(to_bottom_right,#ef4444_50%,#000000_50%)]"></div>
                                             <span>Faixa Coral (Vermelha e Preta)</span>
                                         </div>
                                     </SelectItem>
-
                                     <SelectItem value="vermelha">
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm"></div>
@@ -197,41 +217,47 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700">Data de Nascimento</label>
-
-                        <Input
-                            type="date"
-                            className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700">Buscar por</label>
-                        <Select defaultValue="name">
+                        <label className="text-sm font-semibold text-gray-700">Grau</label>
+                        <Select defaultValue="todos">
                             <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
-                                <SelectValue placeholder="Pesquisar por..." />
+                                <SelectValue placeholder="Selecione o grau" />
                             </SelectTrigger>
                             <SelectContent className={oswald.className}>
                                 <SelectGroup>
-                                    <SelectItem value="name">Nome Completo</SelectItem>
-                                    <SelectItem value="email">E-mail</SelectItem>
+                                    <SelectLabel>Graus</SelectLabel>
+                                    <SelectItem value="todos">Todos os graus</SelectItem>
+                                    <SelectItem value="0">0</SelectItem>
+                                    <SelectItem value="1">1</SelectItem>
+                                    <SelectItem value="2">2</SelectItem>
+                                    <SelectItem value="3">3</SelectItem>
+                                    <SelectItem value="4">4</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700">Termo da busca</label>
+                        <label className="text-sm font-semibold text-gray-700">Data de Nascimento</label>
+                        <Input type="date" className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                    </div>
+
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Peso</label>
                         <div className="relative w-full">
                             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <Input
-                                placeholder="Digite sua busca..."
-                                className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]"
-                            />
+                            <Input placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                         </div>
                     </div>
 
-                </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">Comissão</label>
+                        <div className="relative w-full">
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Input placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                        </div>
+                    </div>
+                </div> 
 
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <Button variant="secondary" className="bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 px-6 font-semibold">
@@ -242,7 +268,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                     </Button>
                 </div>
             </div>
-
+            
             <Table className="text-base">
                 <TableHeader>
                     <TableRow className="font-bold text-[20px]">
@@ -330,6 +356,6 @@ export default async function UsersPage({ searchParams }: { searchParams: { tipo
                     )}
                 </TableBody>
             </Table>
-        </div>
+        </div >
     )
 }
