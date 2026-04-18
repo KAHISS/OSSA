@@ -1,14 +1,17 @@
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
 
+import { revalidatePath } from "next/cache";
+
 import { Button } from "@/components/ui/button";
+
+import { ButtonDelete } from "@/components/ui/ButtonDelete";
 
 import Link from "next/link";
 
@@ -40,6 +43,7 @@ import { Input } from "@/components/ui/input";
 import { Bebas_Neue, Oswald } from 'next/font/google';
 
 import { prisma } from "@/lib/prisma";
+import { DELETE } from "@/app/api/usuarios/[id]/route";
 
 const oswald = Oswald({
     subsets: ['latin'],
@@ -60,6 +64,17 @@ const beltDictionary: Record<string, string> = {
     CORAL: "Coral",
     RED: "Vermelha"
 };
+
+async function deletarUsuario(formData: FormData) {
+    "use server";
+    const idDoUsuario = formData.get("id") as string;
+
+    await prisma.user.delete({
+        where: { id: idDoUsuario }
+    });
+
+    revalidatePath("/painel/usuarios");
+}
 
 export default async function UsersPage({
     searchParams
@@ -484,13 +499,21 @@ export default async function UsersPage({
                                     {user.instructor?.commissionPerStudent ? `R$ ${user.instructor.commissionPerStudent.toString()}` : '-'}
                                 </TableCell>
 
-                                <TableCell className="flex justify-end gap-2 py-4">
-                                    <Button size="sm" variant="outline" className="text-[16px] text-black hover:bg-red-50 hover:border-red-500 h-10 px-3 flex items-center gap-2">
+                                <TableCell className="flex justify-end items-center gap-2 py-4">
+
+                                    <Button
+                                        variant="outline"
+                                        className="h-9 px-4 text-[15px] font-medium text-black hover:bg-red-50 hover:border-red-500 flex items-center gap-2"
+                                    >
                                         <FaEdit /> Editar
                                     </Button>
-                                    <Button size="sm" className="text-[16px] bg-red-600 hover:bg-red-700 text-white h-10 px-3 flex items-center gap-2">
-                                        <FaTrashAlt /> Excluir
-                                    </Button>
+
+                                    <ButtonDelete
+                                        id={user.id}
+                                        message={`Tem certeza que deseja apagar o registro de ${user.name}?`}
+                                        action={deletarUsuario}
+                                    />
+
                                 </TableCell>
                             </TableRow>
                         ))
