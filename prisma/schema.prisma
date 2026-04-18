@@ -13,6 +13,7 @@ model User {
   name            String   
   last_name       String
   birth_date      DateTime
+  sex             String
   email           String
   emailVerified   Boolean   @default(false)
   password        String
