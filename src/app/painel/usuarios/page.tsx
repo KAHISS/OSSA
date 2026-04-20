@@ -91,8 +91,10 @@ export default async function UsersPage({
                 </h1>
 
                 <div className="flex items-center gap-3">
-                    <Button className="bg-zinc-900 hover:bg-black text-white h-15 w-50 px-6 text-xl font-semibold flex items-center gap-2">
-                        <FaUserPlus /> Cadastrar Usuário
+                    <Button asChild className="text-white h-15 px-6 text-xl font-semibold flex items-center gap-2 transition-colors">
+                        <Link href="/painel/usuarios/cadastro" className="hover:!bg-zinc-700">
+                            <FaUserPlus /> Cadastrar Usuário
+                        </Link>
                     </Button>
                 </div>
             </div>
@@ -109,44 +111,53 @@ export default async function UsersPage({
                     <AccordionContent>
                         <form method="GET" action="/painel/usuarios" className="bg-white rounded-lg space-y-6">
 
-                            <input type="hidden" name="type" value={query.type} />
-                            <input type="hidden" name="genre" value={query.genre} />
+                            {(() => {
+                                const currentType = params.type || 'todos';
+                                const currentGenre = params.genre || 'todos';
 
-                            <div className="flex flex-wrap items-center justify-between w-full gap-4">
-                                <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${!query.type || query.type === '' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
-                                    </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Student' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'Student', params)} className="!no-underline hover:no-underline">Alunos</Link>
-                                    </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Instructor' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'Instructor', params)} className="!no-underline hover:no-underline">Instrutores</Link>
-                                    </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Admin' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'Admin', params)} className="!no-underline hover:no-underline">Admins</Link>
-                                    </Button>
-                                </div>
+                                return (
+                                    <>
+                                        <input type="hidden" name="type" value={currentType} />
+                                        <input type="hidden" name="genre" value={currentGenre} />
 
-                                <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
-                                    </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'M' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'M', params)} className="!no-underline hover:no-underline">Homens</Link>
-                                    </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'F' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'F', params)} className="!no-underline hover:no-underline">Mulheres</Link>
-                                    </Button>
-                                </div>
-                            </div>
+                                        <div className="flex flex-wrap items-center justify-between w-full gap-4">
+                                            <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('type', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
+                                                </Button>
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'Student' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('type', 'Student', params)} className="!no-underline hover:no-underline">Alunos</Link>
+                                                </Button>
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'Instructor' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('type', 'Instructor', params)} className="!no-underline hover:no-underline">Instrutores</Link>
+                                                </Button>
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'Admin' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('type', 'Admin', params)} className="!no-underline hover:no-underline">Admins</Link>
+                                                </Button>
+                                            </div>
+
+                                            <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('genre', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
+                                                </Button>
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'M' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('genre', 'M', params)} className="!no-underline hover:no-underline">Homens</Link>
+                                                </Button>
+                                                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'F' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                                    <Link href={createFilterLink('genre', 'F', params)} className="!no-underline hover:no-underline">Mulheres</Link>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </>
+                                );
+                            })()}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Nome Completo</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="name" defaultValue={query.name} placeholder="Digite o name..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="name" defaultValue={query.name || ""} placeholder="Digite o nome..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -154,7 +165,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">E-mail</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="email" defaultValue={query.email} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="email" defaultValue={query.email || ""} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -162,7 +173,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Telefone Pessoal</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="personalPhone" defaultValue={query.personal_phone} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="personalPhone" defaultValue={query.personal_phone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -170,13 +181,13 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Telefone de Emergência</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="emergencyPhone" defaultValue={query.emergency_phone} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="emergencyPhone" defaultValue={query.emergency_phone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa</label>
-                                    <Select defaultValue={query.belt} name="belt">
+                                    <Select defaultValue={query.belt || "todas"} name="belt">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione a faixa" />
                                         </SelectTrigger>
@@ -257,7 +268,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Grau</label>
-                                    <Select defaultValue={query.stripe} name="stripe">
+                                    <Select defaultValue={query.stripe || "todos"} name="stripe">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione o grau" />
                                         </SelectTrigger>
@@ -280,19 +291,19 @@ export default async function UsersPage({
                                     <div className="flex gap-2">
                                         <Input
                                             name="day"
-                                            defaultValue={query.searchDay}
+                                            defaultValue={query.searchDay || ""}
                                             type="number" min="1" max="31" placeholder="Dia"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
                                             name="month"
-                                            defaultValue={query.searchMonth}
+                                            defaultValue={query.searchMonth || ""}
                                             type="number" min="1" max="12" placeholder="Mês"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
                                             name="year"
-                                            defaultValue={query.searchYear}
+                                            defaultValue={query.searchYear || ""}
                                             type="number" min="1900" placeholder="Ano"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
@@ -303,7 +314,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Peso</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="weight" defaultValue={query.weight} placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="weight" defaultValue={query.weight || ""} placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -311,7 +322,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Comissão</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="commission" defaultValue={query.instructor?.commissionPerStudent} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="commission" defaultValue={query.instructor?.commissionPerStudent || ""} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
                             </div>
@@ -325,8 +336,7 @@ export default async function UsersPage({
                                 </Button>
                             </div>
                         </form>
-                    </AccordionContent>
-                </AccordionItem>
+                    </AccordionContent>                </AccordionItem>
             </Accordion>
 
             <Table className="text-xl">
