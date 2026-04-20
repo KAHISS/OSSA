@@ -1,5 +1,5 @@
-export const createFilterLink = (nomeDoFiltro: string, valor: string, params: any) => {
-    const novosParametros = new URLSearchParams(params as Record<string, string>);
-    novosParametros.set(nomeDoFiltro, valor);
-    return `?${novosParametros.toString()}`;
+export const createFilterLink = (filterName: string, value: string, params: any) => {
+    const newParams = new URLSearchParams(params as Record<string, string>);
+    newParams.set(filterName, value);
+    return `?${newParams.toString()}`;
 };

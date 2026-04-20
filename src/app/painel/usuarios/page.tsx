@@ -39,8 +39,8 @@ import {
 } from 'react-icons/fa';
 import { Input } from "@/components/ui/input";
 import { fonts } from "@/utils/fonts";
-import { prisma } from "@/lib/prisma";
-import { deleteUser } from "@/services/users-service";
+import { User } from "@generated/prisma/client";
+import { deleteUser, validateData } from "@/services/users-service";
 import { createFilterLink } from "@/utils/filters";
 
 const beltDictionary: Record<string, string> = {
@@ -74,115 +74,15 @@ export default async function UsersPage({
     }>
 }) {
 
-    const params = await searchParams;
-    const filtrotype = params.type || 'todos';
-    const filtrogenre = params.genre || 'todos';
-    const buscaname = params.name || '';
-    const buscaEmail = params.email || '';
-    const buscapersonalPhone = params.personalPhone || '';
-    const buscaemergencyPhone = params.emergencyPhone || '';
+    // data
+    const params: any = await searchParams;
+    const {query, users}: any = await validateData(params)
 
-    const buscaday = params.day || '';
-    const buscamonth = params.month || '';
-    const buscayear = params.year || '';
-    const buscaweight = params.weight || '';
-    const buscacommission = params.commission || '';
-
-    const buscabelt = params.belt || 'todas';
-    const buscastripe = params.stripe || 'todos';
-
-    const queryWhere: any = {};
-    if (filtrotype === 'alunos') queryWhere.type = 'Student';
-    if (filtrotype === 'instrutores') queryWhere.type = 'Instructor';
-    if (filtrotype === 'admins') queryWhere.type = 'Admin';
-    if (filtrogenre === 'm') queryWhere.sex = 'M';
-    if (filtrogenre === 'f') queryWhere.sex = 'F';
-    if (buscaname) queryWhere.name = { startsWith: buscaname, mode: 'insensitive' };
-    if (buscaEmail) queryWhere.email = { contains: buscaEmail, mode: 'insensitive' };
-    if (buscapersonalPhone) queryWhere.phone = { contains: buscapersonalPhone };
-    if (buscaemergencyPhone) queryWhere.emergency_phone = { contains: buscaemergencyPhone };
-    if (buscaweight) {
-        queryWhere.weight = parseFloat(buscaweight);
-    }
-    if (buscacommission) {
-        queryWhere.instructor = {
-            commissionPerStudent: parseFloat(buscacommission)
-        };
-    }
-
-    if (buscabelt !== 'todas' || buscastripe !== 'todos') {
-        const condicaobeltstripe: any = {};
-
-        if (buscabelt !== 'todas') {
-            const [ belt ] = Object.entries(beltDictionary).find(([key, val]) => val === buscabelt) || [buscabelt.toLocaleUpperCase()];
-            condicaobeltstripe.belt = belt;
-        }
-
-        if (buscastripe !== 'todos') {
-            condicaobeltstripe.stripe = parseInt(buscastripe);
-        }
-
-        queryWhere.OR = [
-            { student: { is: condicaobeltstripe } },
-            { instructor: { is: condicaobeltstripe } }
-        ];
-    }
-
-    if (buscayear) {
-        const yearNum = parseInt(buscayear);
-        let startDate, endDate;
-
-        if (buscamonth) {
-            const monthNum = parseInt(buscamonth);
-            if (buscaday) {
-                const dayNum = parseInt(buscaday);
-                startDate = new Date(Date.UTC(yearNum, monthNum - 1, dayNum, 0, 0, 0));
-                endDate = new Date(Date.UTC(yearNum, monthNum - 1, dayNum, 23, 59, 59));
-            } else {
-                startDate = new Date(Date.UTC(yearNum, monthNum - 1, 1, 0, 0, 0));
-                endDate = new Date(Date.UTC(yearNum, monthNum, 0, 23, 59, 59));
-            }
-        } else {
-            startDate = new Date(Date.UTC(yearNum, 0, 1, 0, 0, 0));
-            endDate = new Date(Date.UTC(yearNum, 11, 31, 23, 59, 59));
-        }
-
-        queryWhere.birth_date = { gte: startDate, lte: endDate };
-    }
-
-    let users = await prisma.user.findMany({
-        where: queryWhere,
-        include: {
-            student: true,
-            instructor: true,
-        },
-        orderBy: { createdAt: 'desc' }
-    });
-
-    if (!buscayear && (buscamonth || buscaday)) {
-        users = users.filter((user) => {
-            if (!user.birth_date) return false;
-
-            const dataNascimento = new Date(user.birth_date);
-            const monthBanco = dataNascimento.getUTCMonth() + 1;
-            const dayBanco = dataNascimento.getUTCDate();
-
-            let passouFiltro = true;
-
-            if (buscamonth && monthBanco !== parseInt(buscamonth)) {
-                passouFiltro = false;
-            }
-
-            if (buscaday && dayBanco !== parseInt(buscaday)) {
-                passouFiltro = false;
-            }
-
-            return passouFiltro;
-        });
-    }
+    // interface
+    const columns = ["Usuario", "Email", "Sexo", "Telefone", "Tipo", "Faixa", "Grau", "Comissão", "Ações"]
 
     return (
-        <div className={`my-10 mx-10 font-thin ${fonts.oswald.className}`}>
+        <div className={`my-6 mx-6 font-thin ${fonts.oswald.className}`}>
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <h1 className={`text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
                     <FaUsers className="text-red-700 text-5xl" />
@@ -208,44 +108,44 @@ export default async function UsersPage({
                     <AccordionContent>
                         <form method="GET" action="/painel/usuarios" className="bg-white rounded-lg space-y-6">
 
-                            <input type="hidden" name="type" value={filtrotype} />
-                            <input type="hidden" name="genre" value={filtrogenre} />
+                            <input type="hidden" name="type" value={query.type} />
+                            <input type="hidden" name="genre" value={query.genre} />
 
                             <div className="flex flex-wrap items-center justify-between w-full gap-4">
                                 <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrotype === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${!query.type ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
                                         <Link href={createFilterLink('type', 'todos', params)}>Todos</Link>
                                     </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrotype === 'alunos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'alunos', params)}>Alunos</Link>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Student' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                        <Link href={createFilterLink('type', 'Student', params)}>Alunos</Link>
                                     </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrotype === 'instrutores' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'instrutores', params)}>Instrutores</Link>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Instructor' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                        <Link href={createFilterLink('type', 'Instructor', params)}>Instrutores</Link>
                                     </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrotype === 'admins' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'admins', params)}>Admins</Link>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Admin' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                        <Link href={createFilterLink('type', 'Admin', params)}>Admins</Link>
                                     </Button>
                                 </div>
 
                                 <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrogenre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
                                         <Link href={createFilterLink('genre', 'todos', params)}>Todos</Link>
                                     </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrogenre === 'm' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'm', params)}>Homens</Link>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'M' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                        <Link href={createFilterLink('genre', 'M', params)}>Homens</Link>
                                     </Button>
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${filtrogenre === 'f' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'f', params)}>Mulheres</Link>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'F' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                        <Link href={createFilterLink('genre', 'F', params)}>Mulheres</Link>
                                     </Button>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-gray-700">name Completo</label>
+                                    <label className="text-sm font-semibold text-gray-700">Nome Completo</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="name" defaultValue={buscaname} placeholder="Digite o name..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="name" defaultValue={query.name} placeholder="Digite o name..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -253,7 +153,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">E-mail</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="email" defaultValue={buscaEmail} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="email" defaultValue={query.email} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -261,7 +161,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Telefone Pessoal</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="personalPhone" defaultValue={buscapersonalPhone} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="personalPhone" defaultValue={query.personal_phone} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -269,20 +169,20 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Telefone de Emergência</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="emergencyPhone" defaultValue={buscaemergencyPhone} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="emergencyPhone" defaultValue={query.emergency_phone} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-gray-700">belt</label>
-                                    <Select defaultValue={buscabelt} name="belt">
+                                    <label className="text-sm font-semibold text-gray-700">Faixa</label>
+                                    <Select defaultValue={query.belt} name="belt">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione a belt" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
                                             <SelectGroup>
-                                                <SelectLabel>belts</SelectLabel>
-                                                <SelectItem value="todas"><span className="ml-6">Todas as belts</span></SelectItem>
+                                                <SelectLabel>Faixas</SelectLabel>
+                                                <SelectItem value="todas"><span className="ml-6">Todas as Faixas</span></SelectItem>
                                                 <SelectItem value="Branca">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-white border border-gray-300 rounded-sm shadow-sm"></div>
@@ -332,7 +232,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">stripe</label>
-                                    <Select defaultValue={buscastripe} name="stripe">
+                                    <Select defaultValue={query.stripe} name="stripe">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione o stripe" />
                                         </SelectTrigger>
@@ -355,19 +255,19 @@ export default async function UsersPage({
                                     <div className="flex gap-2">
                                         <Input
                                             name="day"
-                                            defaultValue={buscaday}
+                                            defaultValue={query.searchDay}
                                             type="number" min="1" max="31" placeholder="day"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
                                             name="month"
-                                            defaultValue={buscamonth}
+                                            defaultValue={query.searchMonth}
                                             type="number" min="1" max="12" placeholder="Mês"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
                                             name="year"
-                                            defaultValue={buscayear}
+                                            defaultValue={query.searchYear}
                                             type="number" min="1900" placeholder="year"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
@@ -378,7 +278,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">weight</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="weight" defaultValue={buscaweight} placeholder="Digite o weight..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="weight" defaultValue={query.weight} placeholder="Digite o weight..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -386,7 +286,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Comissão</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="commission" defaultValue={buscacommission} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="commission" defaultValue={query.instructor?.commissionPerStudent} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
                             </div>
@@ -407,49 +307,46 @@ export default async function UsersPage({
             <Table className="text-base">
                 <TableHeader>
                     <TableRow className="font-bold text-[20px]">
-                        <TableHead className="w-[150px]">Usuário</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>genre</TableHead>
-                        <TableHead>Telefone Pessoal</TableHead>
-                        <TableHead>Telefone Emergencia</TableHead>
-                        <TableHead>Nascimento</TableHead>
-                        <TableHead>weight</TableHead>
-                        <TableHead>belt</TableHead>
-                        <TableHead>stripe</TableHead>
-                        <TableHead>type</TableHead>
-                        <TableHead>Comissão</TableHead>
-                        <TableHead className="text-right">Ação</TableHead>
+                        {
+                            columns.map(column => (
+                                column === "Usuario" ? (
+                                    <TableHead key={column} className="w-[150px]">{column}</TableHead>
+                                ) : (
+                                    <TableHead key={column}>{column}</TableHead>
+                                )
+                            ))
+                        }
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {users.length > 0 ? (
-                        users.map((user) => (
+                        users.map((user: any) => (
                             <TableRow key={user.id}>
                                 <TableCell className="max-w-[150px]">
                                     <HoverCard>
                                         <HoverCardTrigger className="truncate cursor-help font-bold block">
-                                            {user.name} {user.last_name}
+                                            {user.name}
                                         </HoverCardTrigger>
                                         <HoverCardContent className="w-80">
                                             <h1 className="font-bold">name Completo: </h1>
-                                            <p>{user.name} {user.last_name}</p>
+                                            <p>{user.name}</p>
                                         </HoverCardContent>
                                     </HoverCard>
                                 </TableCell>
 
                                 <TableCell>{user.email}</TableCell>
 
-                                <TableCell>{user.sex === 'M' ? 'Masc.' : user.sex === 'F' ? 'Fem.' : '-'}</TableCell>
+                                <TableCell>{user.genre === 'M' ? 'Masc.' : user.genre === 'F' ? 'Fem.' : '-'}</TableCell>
 
                                 <TableCell>{user.phone}</TableCell>
 
-                                <TableCell>{user.emergency_phone}</TableCell>
-
                                 <TableCell>
-                                    {user.birth_date ? new Date(user.birth_date).toLocaleDateString('pt-BR') : '-'}
+                                    {user.type === 'Student'
+                                        ? 'Aluno'
+                                        : user.type === 'Instructor'
+                                            ? 'Instrutor'
+                                            : 'Administrador'}
                                 </TableCell>
-
-                                <TableCell>{user.weight ? `${user.weight.toString()}Kg` : '-'}</TableCell>
 
                                 <TableCell className="capitalize">
                                     {(() => {
@@ -461,14 +358,6 @@ export default async function UsersPage({
 
                                 <TableCell>
                                     {user.student?.stripe ?? user.instructor?.stripe ?? '-'}
-                                </TableCell>
-
-                                <TableCell>
-                                    {user.type === 'Student'
-                                        ? 'Aluno'
-                                        : user.type === 'Instructor'
-                                            ? 'Instrutor'
-                                            : 'Administrador'}
                                 </TableCell>
 
                                 <TableCell>
