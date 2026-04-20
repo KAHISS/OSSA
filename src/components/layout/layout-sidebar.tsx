@@ -13,28 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Image from "next/image"
 import { Bebas_Neue, Montserrat, Yuji_Syuku, Anton} from 'next/font/google'
 import { AvatarDropdown } from "./layout-dropdown"
-
-const bebas = Bebas_Neue({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-bebas',
-})
-
-const yuji = Yuji_Syuku({
-  subsets: ['latin'],
-  weight: '400',
-})
-
-const anton = Anton({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-anton',
-})
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-})
+import Link from "next/link"
+import { fonts } from "@/utils/fonts"
 
 const modules = [
   {
@@ -63,9 +43,20 @@ export function AppSidebar() {
           style={{ width: '70%', height: 'auto' }}
         />
       </SidebarHeader>
-      <SidebarContent className="bg-zinc-900">   
+      <SidebarContent className="bg-zinc-900">
         <SidebarGroup title="Dashboard" className="bg-zinc-900">
-          <SidebarGroupLabel className={`text-gray-400 text-2xl ${anton.className} `}>Módulos</SidebarGroupLabel>
+          <SidebarGroupLabel className={`text-gray-400 text-[1.3rem] ${fonts.anton.className} `}>Dashboard</SidebarGroupLabel>
+          <SidebarMenu className="mt-2 text-center">
+            <SidebarMenuButton className="text-white text-lg font-bold bg-zinc-900 hover:bg-red-500 transition-colors duration-300 hover:text-white font-mono h-10 flex items-center justify-between cursor-pointer" variant={"outline"}>
+              <Link href="/painel/dashboard" className={`text-center ${fonts.anton.className}`}>Visão Geral</Link>
+              <div className="w-10 h-10 bg-zinc-900 ml-8">
+                <div className="w-2 h-10 bg-white ml-5"></div>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarGroup title="Models" className="bg-zinc-900">
+          <SidebarGroupLabel className={`text-gray-400 text-[1.3rem] ${fonts.anton.className} `}>Módulos</SidebarGroupLabel>
           <SidebarMenu className="mt-2 text-center">
             {modules.map((module) => (
               <SidebarMenuButton 
@@ -73,7 +64,7 @@ export function AppSidebar() {
                 className="text-white text-lg font-bold bg-zinc-900 hover:bg-red-500 transition-colors duration-300 hover:text-white font-mono h-10 flex items-center justify-between cursor-pointer"
                 variant={"outline"}
               >
-                <a href={`${module.href}`} className={`text-center ${anton.className}`}>{module.name}</a>
+                <Link href={`${module.href}`} className={`text-center ${fonts.anton.className}`}>{module.name}</Link>
                 <div className="w-10 h-10 bg-zinc-900 ml-8">
                   <div className="w-2 h-10 bg-white ml-5"></div>
                 </div>

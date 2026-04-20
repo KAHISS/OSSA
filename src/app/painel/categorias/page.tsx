@@ -31,10 +31,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
-    FaIdCard,
+    FaThLarge,
     FaSearch,
     FaEdit,
-    FaTrashAlt
+    FaTrashAlt,
+    FaTh
 } from 'react-icons/fa';
 import { Input } from "@/components/ui/input";
 import { fonts } from "@/utils/fonts";
@@ -67,13 +68,13 @@ export default async function CategoriesPage({
         <div className={`my-6 mx-6 font-thin ${fonts.oswald.className}`}>
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <h1 className={`text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
-                    <FaIdCard className="text-red-700 text-5xl" />
+                    <FaTh className="text-red-700 text-5xl" />
                     Gestão de Categorias
                 </h1>
 
                 <div className="flex items-center gap-3">
                     <Button className="bg-zinc-900 hover:bg-black text-white h-15 w-50 px-6 text-xl font-semibold flex items-center gap-2">
-                        <FaIdCard /> Cadastrar Categoria
+                        <FaThLarge /> Cadastrar Categoria
                     </Button>
                 </div>
             </div>
@@ -81,15 +82,15 @@ export default async function CategoriesPage({
                 type="single"
                 collapsible
                 defaultValue="shipping"
-                className="w-full bg-card p-4 rounded-lg border"
+                className="w-full bg-card p-4 rounded-lg border "
             >
                 <AccordionItem value="teste">
-                    <AccordionTrigger>
-                        <h2 className="text-xl font-bold text-gray-800">Filtros de Busca</h2>
+                    <AccordionTrigger className="no-underline hover:no-underline">
+                        <h2 className="text-xl font-bold text-gray-800 ">Filtros de Busca</h2>
                     </AccordionTrigger>
                     <AccordionContent>
-                        <form method="GET" action="/painel/categorias" className="bg-white rounded-lg space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <form method="GET" action="/painel/categorias" className="bg-white rounded-lg space-y-6 p-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Nome da categoria</label>
                                     <div className="relative w-full">
@@ -102,7 +103,7 @@ export default async function CategoriesPage({
                                     <label className="text-sm font-semibold text-gray-700">Descrição</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="email" defaultValue={query.description?.contains} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="email" defaultValue={query.description?.contains} placeholder="Digite a descrição..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -110,7 +111,7 @@ export default async function CategoriesPage({
                                     <label className="text-sm font-semibold text-gray-700">Faixa etária</label>
                                     <Select defaultValue={query.age_group?.contains} name="belt">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
-                                            <SelectValue placeholder="Selecione a belt" />
+                                            <SelectValue placeholder="Selecione a faixa etária" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
                                             <SelectGroup>
@@ -132,11 +133,12 @@ export default async function CategoriesPage({
                                     <label className="text-sm font-semibold text-gray-700">Faixa de Peso</label>
                                     <Select defaultValue={query.weight_range?.contains} name="stripe">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
-                                            <SelectValue placeholder="Selecione o stripe" />
+                                            <SelectValue placeholder="Selecione a faixa de peso"/>
                                         </SelectTrigger>
-                                        <SelectContent className={fonts.oswald.className}>
+                                        <SelectContent className={`${fonts.oswald.className}`}>
                                             <SelectGroup>
-                                                <SelectLabel>stripes</SelectLabel>
+                                                <SelectLabel>Faixas de Peso</SelectLabel>
+                                                <SelectItem value="todas"><span className="ml-6">Todas as Faixas de Peso</span></SelectItem>
                                                 {
                                                     categories.map((category: any) => (
                                                         <SelectItem value={category.weight_range} key={category.id}>
@@ -219,7 +221,7 @@ export default async function CategoriesPage({
                     ) : (
                         <TableRow>
                             <TableCell colSpan={12} className="h-24 text-center text-gray-500 text-lg">
-                                Não há usuários cadastrados no momento.
+                                Não há categorias cadastradas no momento.
                             </TableCell>
                         </TableRow>
                     )}

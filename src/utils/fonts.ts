@@ -1,8 +1,14 @@
-import { Bebas_Neue, Oswald } from "next/font/google"
+import { Bebas_Neue, Oswald, Anton} from "next/font/google"
 
 const bebas = Bebas_Neue({
     subsets: ['latin'],
     weight: ['400'],
+})
+
+const anton = Anton({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-anton',
 })
 
 const oswald = Oswald({
@@ -12,5 +18,6 @@ const oswald = Oswald({
 
 export const fonts: any = {
     bebas,
-    oswald
+    oswald,
+    anton
 }
