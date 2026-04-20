@@ -11,76 +11,96 @@ import { Input } from "@/components/ui/input";
 
 export default function UsuarioCreate() {
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-md space-y-6">
+    <div className="w-full max-w-4xl mx-auto p-10 bg-white rounded-2xl shadow-md space-y-10">
       
       {/* Título */}
       <div>
-        <h1 className="text-3xl font-bold text-blue-700">
+        <h1 className="text-3xl font-bold text-indigo-700">
           Editar Usuário
         </h1>
-        <FieldDescription>
-          Preencha os dados que deseja alterar
+        <FieldDescription className="text-gray-600">
+          Atualize os dados do usuário
         </FieldDescription>
       </div>
 
       {/* Formulário */}
-      <FieldGroup className="space-y-4">
+      <FieldGroup className="space-y-8">
 
-        {/* Nome */}
-        <div className="grid grid-cols-2 gap-4">
-          <Input placeholder="Nome" />
-          <Input placeholder="Sobrenome" />
+        {/* Grupo: Identificação */}
+        <div className="space-y-6">
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Tipo de Usuário</FieldLabel>
+            <select className="w-full h-12 border-indigo-400 rounded-md bg-white text-base px-3 focus:ring-2 focus:ring-indigo-500">
+              <option>Aluno</option>
+              <option>Instrutor</option>
+              <option>Admin</option>
+            </select>
+          </Field>
+
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Nome Completo</FieldLabel>
+            <Input placeholder="Digite o nome completo..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
+
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">E-mail</FieldLabel>
+            <Input type="email" placeholder="Digite o e-mail..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
         </div>
 
-        {/* Email */}
-        <Input type="email" placeholder="Email" />
-
-        {/* Data */}
-        <Field>
-          <FieldLabel>Data de nascimento</FieldLabel>
-          <Input type="date" />
-        </Field>
-
-        {/* Senha */}
-        <Input type="password" placeholder="Senha" />
-
-        {/* Telefones */}
-        <div className="grid grid-cols-2 gap-4">
-          <Input placeholder="Telefone" />
-          <Input placeholder="Telefone de emergência" />
+        {/* Grupo: Contatos */}
+        <div className="grid grid-cols-2 gap-6">
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Telefone Pessoal</FieldLabel>
+            <Input placeholder="Digite o telefone..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Telefone de Emergência</FieldLabel>
+            <Input placeholder="Digite o telefone..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
         </div>
 
-        {/* Peso */}
-        <Input type="number" placeholder="Peso" />
-
-        {/* Tipo */}
-        <Field>
-          <FieldLabel>Tipo de usuário</FieldLabel>
-          <select className="w-full border p-2 rounded bg-blue-50 focus:ring-2 focus:ring-blue-200">
-            <option>Student</option>
-            <option>Instructor</option>
-            <option>Admin</option>
-          </select>
-        </Field>
-
-        {/* Faixa e Listras */}
-        <div className="grid grid-cols-2 gap-4">
-          <Input placeholder="Faixa (WHITE, BLUE...)" />
-          <Input type="number" placeholder="Listras (0-4)" />
+        {/* Grupo: Status (Faixa e Listras) */}
+        <div className="grid grid-cols-2 gap-6">
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Faixa</FieldLabel>
+            <select className="w-full h-12 border-indigo-400 rounded-md bg-white text-base px-3 focus:ring-2 focus:ring-indigo-500">
+              <option>Branca</option>
+              <option>Azul</option>
+              <option>Roxa</option>
+              <option>Marrom</option>
+              <option>Preta</option>
+              <option>Coral</option>
+              <option>Vermelha</option>
+            </select>
+          </Field>
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Listras</FieldLabel>
+            <Input type="number" placeholder="0-4" className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
         </div>
 
-        {/* Comissão */}
-        <Input type="number" placeholder="Comissão por aluno" />
+        {/* Grupo: Dados adicionais */}
+        <div className="grid grid-cols-2 gap-6">
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Peso</FieldLabel>
+            <Input type="number" placeholder="Digite o peso..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
+          <Field>
+            <FieldLabel className="text-lg font-semibold text-gray-700">Comissão</FieldLabel>
+            <Input type="number" placeholder="Digite a comissão..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
+          </Field>
+        </div>
 
       </FieldGroup>
 
       {/* Botões */}
-      <div className="flex justify-end gap-3 pt-4">
-        <Button variant="outline" type="button">
-          Cancelar
+      <div className="flex justify-end gap-4 pt-6 border-t">
+        <Button variant="outline" type="button" className="h-12 px-6 text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300">
+          Limpar
         </Button>
-        <Button type="submit">
-          Salvar
+        <Button type="submit" className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-semibold">
+          Editar
         </Button>
       </div>
     </div>
