@@ -56,9 +56,11 @@ export function AppSidebar() {
         <Image
           src="/images/logo.png"
           alt="Ossa! Logo"
-          width={150}
+          width={140}
           height={24}
           className="dark:invert"
+          loading="eager"
+          style={{ width: '70%', height: 'auto' }}
         />
       </SidebarHeader>
       <SidebarContent className="bg-zinc-900">   

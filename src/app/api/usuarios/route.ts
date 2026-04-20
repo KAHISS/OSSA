@@ -24,8 +24,8 @@ export async function POST(request: Request) {
         const newUser = await prisma.user.create({
             data: {
                 name: data.name,
-                last_name: data.last_name,
                 email: data.email,
+                genre: data.genre,
                 birth_date: new Date(data.birth_date),
                 password: data.password,
                 phone: data.phone,
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
                     create: {
                         belt: data.belt ?? 'WHITE',
                         stripe: data.stripe ?? 0,
-                        commisionPerStudent: data.commisionPerStudent ?? 0
+                        commissionPerStudent: data.commisionPerStudent ?? 0
                     }
                 } : undefined,
             },

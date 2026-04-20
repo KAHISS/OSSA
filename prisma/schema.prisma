@@ -11,11 +11,10 @@ datasource db {
 model User {
   id              String    @id @default(cuid())
   name            String   
-  last_name       String
   birth_date      DateTime
+  genre           String
   email           String
   emailVerified   Boolean   @default(false)
-  password        String
   image           String?
   phone           String
   emergency_phone String
@@ -43,11 +42,11 @@ model Student {
 }
 
 model Instructor {
-  id                  String @id
-  belt                Belt    
-  stripe              Int
-  commisionPerStudent Decimal @db.Decimal(6, 2)
-  user                User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  id                    String @id
+  belt                  Belt    
+  stripe                Int
+  commissionPerStudent  Decimal @db.Decimal(6, 2)
+  user                  User   @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("instructor")
 }
@@ -126,6 +125,8 @@ model Category {
   description  String?  @db.VarChar(1255)
   age_group    String   @db.VarChar(30)
   weight_range String   @db.VarChar(30)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("category")
 }

@@ -52,6 +52,7 @@ export async function PUT(
             name: data.name,
             last_name: data.last_name,
             email: data.email,
+            sex: data.sex,
             birth_date: data.birth_date ? new Date(data.birth_date) : undefined,
             password: data.password,
             phone: data.phone,
@@ -79,12 +80,12 @@ export async function PUT(
                     create: {
                         belt: data.belt ?? 'WHITE',
                         stripe: data.stripe ?? 0,
-                        commisionPerStudent: data.commisionPerStudent ?? 0
+                        commissionPerStudent: data.commissionPerStudent ?? 0
                     },
                     update: {
                         belt: data.belt,
                         stripe: data.stripe,
-                        commisionPerStudent: data.commisionPerStudent
+                        commissionPerStudent: data.commissionPerStudent
                     }
                 }
             };
