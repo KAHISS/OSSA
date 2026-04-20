@@ -7,12 +7,12 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
 } from "@/components/ui/accordion"
-import { revalidatePath } from "next/cache";
+
 import { Button } from "@/components/ui/button";
 import { ButtonDelete } from "@/components/ui/ButtonDelete";
 import Link from "next/link";
@@ -34,24 +34,25 @@ import {
     FaUsers,
     FaUserPlus,
     FaSearch,
-    FaEdit,
-    FaTrashAlt
+    FaEdit
 } from 'react-icons/fa';
 import { Input } from "@/components/ui/input";
 import { fonts } from "@/utils/fonts";
-import { User } from "@generated/prisma/client";
 import { deleteUser, validateData } from "@/services/users-service";
 import { createFilterLink } from "@/utils/filters";
 
 const beltDictionary: Record<string, string> = {
-    WHITE: "Branca",
-    BLUE: "Azul",
-    PURPLE: "Roxa",
-    BROWN: "Marrom",
-    BLACK: "Preta",
-    CORAL: "Coral",
-    RED: "Vermelha",
-    GRAY: "Cinza"
+    Branca: "WHITE",
+    Cinza: "Gray",
+    Amarela: "YELLOW",
+    Laranja: "ORANGE",
+    Verde: "GREEN",
+    Azul: "BLUE",
+    Roxa: "PURPLE",
+    Marrom: "BROWN",
+    Preta: "BLACK",
+    Coral: "CORAL",
+    Vermelha: "RED",
 };
 
 export default async function UsersPage({
@@ -76,7 +77,7 @@ export default async function UsersPage({
 
     // data
     const params: any = await searchParams;
-    const {query, users}: any = await validateData(params)
+    const { query, users }: any = await validateData(params)
 
     // interface
     const columns = ["Usuario", "Email", "Sexo", "Telefone", "Tipo", "Faixa", "Grau", "Comissão", "Ações"]
@@ -101,8 +102,8 @@ export default async function UsersPage({
                 defaultValue="shipping"
                 className="w-full bg-card p-4 rounded-lg border"
             >
-                <AccordionItem value="teste">
-                    <AccordionTrigger>
+                <AccordionItem value="teste" className="boder-none">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 transition-colors rounded-lg data-[state=open]:rounded-b-none">
                         <h2 className="text-xl font-bold text-gray-800">Filtros de Busca</h2>
                     </AccordionTrigger>
                     <AccordionContent>
@@ -113,29 +114,29 @@ export default async function UsersPage({
 
                             <div className="flex flex-wrap items-center justify-between w-full gap-4">
                                 <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${!query.type ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'todos', params)}>Todos</Link>
+                                    <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${!query.type || query.type === '' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                                        <Link href={createFilterLink('type', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
                                     </Button>
                                     <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Student' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'Student', params)}>Alunos</Link>
+                                        <Link href={createFilterLink('type', 'Student', params)} className="!no-underline hover:no-underline">Alunos</Link>
                                     </Button>
                                     <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Instructor' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'Instructor', params)}>Instrutores</Link>
+                                        <Link href={createFilterLink('type', 'Instructor', params)} className="!no-underline hover:no-underline">Instrutores</Link>
                                     </Button>
                                     <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.type === 'Admin' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('type', 'Admin', params)}>Admins</Link>
+                                        <Link href={createFilterLink('type', 'Admin', params)} className="!no-underline hover:no-underline">Admins</Link>
                                     </Button>
                                 </div>
 
                                 <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
                                     <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'todos', params)}>Todos</Link>
+                                        <Link href={createFilterLink('genre', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
                                     </Button>
                                     <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'M' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'M', params)}>Homens</Link>
+                                        <Link href={createFilterLink('genre', 'M', params)} className="!no-underline hover:no-underline">Homens</Link>
                                     </Button>
                                     <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${query.genre === 'F' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                                        <Link href={createFilterLink('genre', 'F', params)}>Mulheres</Link>
+                                        <Link href={createFilterLink('genre', 'F', params)} className="!no-underline hover:no-underline">Mulheres</Link>
                                     </Button>
                                 </div>
                             </div>
@@ -177,7 +178,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Faixa</label>
                                     <Select defaultValue={query.belt} name="belt">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
-                                            <SelectValue placeholder="Selecione a belt" />
+                                            <SelectValue placeholder="Selecione a faixa" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
                                             <SelectGroup>
@@ -186,43 +187,67 @@ export default async function UsersPage({
                                                 <SelectItem value="Branca">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-white border border-gray-300 rounded-sm shadow-sm"></div>
-                                                        <span>belt Branca</span>
+                                                        <span>Faixa Branca</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="Cinza">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-4 h-4 bg-gray-600 border border-gray-300 rounded-sm shadow-sm"></div>
+                                                        <span>Faixa Cinza</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="Amarela">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-4 h-4 bg-yellow-400 border border-gray-300 rounded-sm shadow-sm"></div>
+                                                        <span>Faixa Amarela</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="Laranja">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-4 h-4 bg-orange-500 border border-gray-300 rounded-sm shadow-sm"></div>
+                                                        <span>Faixa Laranja</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="Verde">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-4 h-4 bg-green-600 border border-gray-300 rounded-sm shadow-sm"></div>
+                                                        <span>Faixa Verde</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem value="Azul">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-blue-600 rounded-sm shadow-sm"></div>
-                                                        <span>belt Azul</span>
+                                                        <span>Faixa Azul</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem value="Roxa">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-purple-600 rounded-sm shadow-sm"></div>
-                                                        <span>belt Roxa</span>
+                                                        <span>Faixa Roxa</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem value="Marrom">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-[#5C4033] rounded-sm shadow-sm"></div>
-                                                        <span>belt Marrom</span>
+                                                        <span>Faixa Marrom</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem value="Preta">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-black rounded-sm shadow-sm"></div>
-                                                        <span>belt Preta</span>
+                                                        <span>Faixa Preta</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem value="Coral">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 rounded-sm shadow-sm bg-[linear-gradient(to_bottom_right,#ef4444_50%,#000000_50%)]"></div>
-                                                        <span>belt Coral (Vermelha e Preta)</span>
+                                                        <span>Faixa Coral (Vermelha e Preta)</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem value="Vermelha">
                                                     <div className="flex items-center gap-2">
                                                         <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm"></div>
-                                                        <span>belt Vermelha</span>
+                                                        <span>Faixa Vermelha</span>
                                                     </div>
                                                 </SelectItem>
                                             </SelectGroup>
@@ -231,15 +256,15 @@ export default async function UsersPage({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-gray-700">stripe</label>
+                                    <label className="text-sm font-semibold text-gray-700">Grau</label>
                                     <Select defaultValue={query.stripe} name="stripe">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
-                                            <SelectValue placeholder="Selecione o stripe" />
+                                            <SelectValue placeholder="Selecione o grau" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
                                             <SelectGroup>
-                                                <SelectLabel>stripes</SelectLabel>
-                                                <SelectItem value="todos">Todos os stripes</SelectItem>
+                                                <SelectLabel>Graus</SelectLabel>
+                                                <SelectItem value="todos">Todos os graus</SelectItem>
                                                 <SelectItem value="0">0</SelectItem>
                                                 <SelectItem value="1">1</SelectItem>
                                                 <SelectItem value="2">2</SelectItem>
@@ -256,7 +281,7 @@ export default async function UsersPage({
                                         <Input
                                             name="day"
                                             defaultValue={query.searchDay}
-                                            type="number" min="1" max="31" placeholder="day"
+                                            type="number" min="1" max="31" placeholder="Dia"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
@@ -268,17 +293,17 @@ export default async function UsersPage({
                                         <Input
                                             name="year"
                                             defaultValue={query.searchYear}
-                                            type="number" min="1900" placeholder="year"
+                                            type="number" min="1900" placeholder="Ano"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-gray-700">weight</label>
+                                    <label className="text-sm font-semibold text-gray-700">Peso</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="weight" defaultValue={query.weight} placeholder="Digite o weight..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="weight" defaultValue={query.weight} placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -293,7 +318,7 @@ export default async function UsersPage({
 
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                                 <Button variant="secondary" asChild className="bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 px-6 font-semibold">
-                                    <Link href="/painel/usuarios">Limpar</Link>
+                                    <Link href="/painel/usuarios" className="!no-underline">Limpar</Link>
                                 </Button>
                                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold">
                                     Filtrar usuários
@@ -326,7 +351,7 @@ export default async function UsersPage({
                                             {user.name}
                                         </HoverCardTrigger>
                                         <HoverCardContent className="w-80">
-                                            <h1 className="font-bold">name Completo: </h1>
+                                            <h1 className="font-bold">Nome Completo: </h1>
                                             <p>{user.name}</p>
                                         </HoverCardContent>
                                     </HoverCard>

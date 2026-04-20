@@ -50,11 +50,9 @@ export async function PUT(
 
         const updateData: Prisma.UserUpdateInput = {
             name: data.name,
-            last_name: data.last_name,
             email: data.email,
-            sex: data.sex,
+            genre: data.genre,
             birth_date: data.birth_date ? new Date(data.birth_date) : undefined,
-            password: data.password,
             phone: data.phone,
             emergency_phone: data.emergency_phone,
             weight: data.weight,
