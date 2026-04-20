@@ -27,7 +27,6 @@ export async function POST(request: Request) {
                 email: data.email,
                 genre: data.genre,
                 birth_date: new Date(data.birth_date),
-                password: data.password,
                 phone: data.phone,
                 emergency_phone: data.emergency_phone,
                 weight: data.weight,

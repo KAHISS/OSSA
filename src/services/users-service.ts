@@ -16,13 +16,16 @@ export async function validateData(data: any) {
 
     const beltDictionary: Record<string, string> = {
         Branca: "WHITE",
+        Cinza: "Gray",
+        Amarela: "YELLOW",
+        Laranja: "ORANGE",
+        Verde: "GREEN",
         Azul: "BLUE",
         Roxa: "PURPLE",
         Marrom: "BROWN",
         Preta: "BLACK",
         Coral: "CORAL",
         Vermelha: "RED",
-        Cinza: "GRAY"
     };
 
     const searchName = data.name || '';
@@ -54,20 +57,20 @@ export async function validateData(data: any) {
     }
 
     if (searchBelt !== 'todas' || searchStripe !== 'todos') {
-        const condicaobeltstripe: any = {};
+        const conditionBeltStripe: any = {};
 
         if (searchBelt !== 'todas') {
-            const [ belt ] = Object.entries(beltDictionary).find(([key, val]) => val === searchBelt) || [searchBelt.toLocaleUpperCase()];
-            condicaobeltstripe.belt = belt;
+            const [belt] = Object.entries(beltDictionary).find(([key, val]) => val === searchBelt) || [searchBelt.toLocaleUpperCase()];
+            conditionBeltStripe.belt = belt;
         }
 
         if (searchStripe !== 'todos') {
-            condicaobeltstripe.stripe = parseInt(searchStripe);
+            conditionBeltStripe.stripe = parseInt(searchStripe);
         }
 
         query.OR = [
-            { student: { is: condicaobeltstripe } },
-            { instructor: { is: condicaobeltstripe } }
+            { student: { is: conditionBeltStripe } },
+            { instructor: { is: conditionBeltStripe } }
         ];
     }
 
@@ -110,17 +113,17 @@ export async function validateData(data: any) {
             const monthBanco = dataNascimento.getUTCMonth() + 1;
             const dayBanco = dataNascimento.getUTCDate();
 
-            let passouFiltro = true;
+            let filterOk = true;
 
             if (searchMonth && monthBanco !== parseInt(searchMonth)) {
-                passouFiltro = false;
+                filterOk = false;
             }
 
             if (searchDay && dayBanco !== parseInt(searchDay)) {
-                passouFiltro = false;
+                filterOk = false;
             }
 
-            return passouFiltro;
+            return filterOk;
         });
     }
 
@@ -128,5 +131,5 @@ export async function validateData(data: any) {
     query.searchMonth = searchMonth
     query.searchYear = searchYear
 
-    return {query, users}
+    return { query, users };
 }
