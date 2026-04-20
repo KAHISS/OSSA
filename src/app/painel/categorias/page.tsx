@@ -35,7 +35,8 @@ import {
     FaSearch,
     FaEdit,
     FaTrashAlt,
-    FaTh
+    FaTh,
+    FaPlus
 } from 'react-icons/fa';
 import { Input } from "@/components/ui/input";
 import { fonts } from "@/utils/fonts";
@@ -73,8 +74,10 @@ export default async function CategoriesPage({
                 </h1>
 
                 <div className="flex items-center gap-3">
-                    <Button className="bg-zinc-900 hover:bg-black text-white h-15 w-50 px-6 text-xl font-semibold flex items-center gap-2">
-                        <FaThLarge /> Cadastrar Categoria
+                    <Button className="bg-zinc-900 hover:bg-black text-white h-11 w-50 px-6 text-xl font-semibold flex items-center gap-2">     
+                        <Link href="/painel/categorias/cadastrar" className="flex items-center gap-2">
+                            <FaPlus /> Nova Categoria
+                        </Link>
                     </Button>
                 </div>
             </div>
@@ -164,7 +167,7 @@ export default async function CategoriesPage({
                 </AccordionItem>
             </Accordion>
 
-            <Table className="text-base">
+            <Table className="text-base mt-6">
                 <TableHeader>
                     <TableRow className="font-bold text-[20px]">
                         {
