@@ -1,3 +1,5 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -12,8 +14,7 @@ export async function deleteCategory(formData: FormData) {
     revalidatePath("/painel/usuarios");
 }
 
-export async function createCategory(formData: FormData) {
-    "use server";
+export async function createCategory(prevState: any, formData: FormData) {
 
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
@@ -23,15 +24,15 @@ export async function createCategory(formData: FormData) {
     const finish_weight_range = parseFloat(formData.get("finish_weight_range") as string) || 0;
 
     if (!name || !start_age_group || !finish_age_group || !start_weight_range || !finish_weight_range) {
-        throw new Error("Todos os campos são obrigatórios.");
+        return { message: "Todos os campos são obrigatórios.", status: "error" };
     }
 
     if (name === "") {
-        throw new Error("O campo de nome não pode ser vazio.");
+        return { message: "O campo 'Nome da Categoria' não pode estar vazio.", status: "error" };
     }
 
     if (isNaN(start_age_group) || isNaN(finish_age_group) || isNaN(start_weight_range) || isNaN(finish_weight_range)) {
-        throw new Error("Os campos de faixa etária e faixa de peso devem ser números.");
+        return { message: "Os campos de faixa etária e faixa de peso devem ser números válidos.", status: "error" };
     }
 
     await prisma.category.create({
@@ -43,7 +44,7 @@ export async function createCategory(formData: FormData) {
         }
     });
 
-    revalidatePath("/painel/categorias");
+    return { message: `Categoria ${name} criada com sucesso!`, status: "success" };
 }
 
 export async function validateData(data: any) {

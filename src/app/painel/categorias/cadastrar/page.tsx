@@ -1,3 +1,4 @@
+"use client";
 import { fonts } from "@/utils/fonts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,11 +13,49 @@ import {
 } from 'react-icons/fa';
 import Link from "next/link";
 import { createCategory } from "@/services/categories-services";
-import { redirect } from "next/navigation";
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import Confirmation from "@/components/ui/confirmation";
 
 export default function CreateCategoryPage() {
+    const formRef = useRef<HTMLFormElement>(null);
+    const router = useRouter();
 
+    const [state, formAction, isPending] = useActionState(createCategory, { 
+        message: "", 
+        status: "" 
+    });
 
+    const handleConfirm = () => {
+        formRef.current?.requestSubmit(); // Dispara o formulário respeitando as validações do HTML5
+    };
+
+    useEffect(() => {
+        if (state?.message) {
+            if (state.status === "error") {
+                toast.error("Erro", {
+                    description: state.message,
+                });
+            } else if (state.status === "success") {
+                toast.success("Sucesso!", {
+                    description: state.message,
+                });
+                router.push("/painel/categorias");
+            }
+        }
+    }, [state]);
 
     return (
         <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
@@ -35,7 +74,7 @@ export default function CreateCategoryPage() {
             </div>
 
             <div className="bg-white rounded-lg border p-4 md:p-8 shadow-sm">
-                <form action={createCategory} className="space-y-6 md:space-y-8">
+                <form ref={formRef} action={formAction} className="space-y-6 md:space-y-8">
                     
                     {/* Nome da Categoria - Full Width */}
                     <div className="space-y-2">
@@ -108,12 +147,14 @@ export default function CreateCategoryPage() {
                         >
                             <Link href="/painel/categorias" className="flex justify-center">Cancelar</Link>
                         </Button>
-                        <Button 
-                            type="submit" 
-                            className="w-full sm:w-auto bg-zinc-900 hover:bg-black text-white h-12 px-8 text-xl font-semibold flex items-center justify-center gap-2"
-                        >
-                            <FaSave /> Salvar Categoria
-                        </Button>
+                        <Confirmation
+                            title="Confirmar Criação"
+                            message="Tem certeza que deseja criar esta categoria? Esta ação não pode ser desfeita."
+                            isPending={isPending}
+                            buttonText="Criar Categoria"
+                            handleConfirm={handleConfirm}
+                            classNameButton="w-full sm:w-auto bg-zinc-900 text-white h-12 px-8 text-xl font-semibold"
+                        />
                     </div>
                 </form>
             </div>
