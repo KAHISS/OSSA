@@ -185,16 +185,8 @@ export default async function CategoriesPage({
                     {categories.length > 0 ? (
                         categories.map((category: any) => (
                             <TableRow key={category.id}>
-                                <TableCell className="max-w-[150px]">
-                                    <HoverCard>
-                                        <HoverCardTrigger className="truncate cursor-help font-bold block">
-                                            {category.name}
-                                        </HoverCardTrigger>
-                                        <HoverCardContent className="w-80">
-                                            <h1 className="font-bold">Nome C: </h1>
-                                            <p>{category.name}</p>
-                                        </HoverCardContent>
-                                    </HoverCard>
+                                <TableCell className="max-w-[150px] font-bold">
+                                    {category.name}
                                 </TableCell>
 
                                 <TableCell>{category.description}</TableCell>
