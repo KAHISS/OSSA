@@ -201,7 +201,9 @@ export default async function CategoriesPage({
                                         variant="outline"
                                         className="h-9 px-4 text-[15px] font-medium text-black hover:bg-red-50 hover:border-red-500 flex items-center gap-2"
                                     >
-                                        <FaEdit /> Editar
+                                        <Link href={`/painel/categorias/${category.id}/atualizar`} className="flex items-center gap-2">
+                                            <button className="btn btn-warning">Editar</button>
+                                        </Link>
                                     </Button>
 
                                     <ButtonDelete
