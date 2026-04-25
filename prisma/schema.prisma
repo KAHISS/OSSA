@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -9,44 +8,43 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  name            String   
-  birth_date      DateTime
-  genre           String
-  email           String
-  emailVerified   Boolean   @default(false)
+  id              String      @id @default(cuid())
+  name            String
+  email           String      @unique
+  emailVerified   Boolean     @default(false)
   image           String?
-  phone           String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  birth_date      DateTime
   emergency_phone String
-  weight          Decimal   @db.Decimal(5, 2)
+  last_name       String
+  password        String
+  phone           String
   type            UserType
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  sessions        Session[]
+  weight          Decimal     @db.Decimal(5, 2)
   accounts        Account[]
-
-  student         Student?
   instructor      Instructor?
+  sessions        Session[]
+  student         Student?
 
-  @@unique([email])
   @@map("user")
 }
 
 model Student {
-  id      String @id
-  belt    Belt
-  stripe  Int
-  user    User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  id     String @id
+  belt   Belt
+  stripe Int
+  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("student")
 }
 
 model Instructor {
-  id                    String @id
-  belt                  Belt    
-  stripe                Int
-  commissionPerStudent  Decimal @db.Decimal(6, 2)
-  user                  User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  id                   String  @id
+  belt                 Belt
+  stripe               Int
+  commissionPerStudent Decimal @db.Decimal(6, 2)
+  user                 User    @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("instructor")
 }
@@ -54,7 +52,7 @@ model Instructor {
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -62,7 +60,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@index([userId])
   @@map("session")
 }
@@ -72,7 +69,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -82,6 +78,7 @@ model Account {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("account")
@@ -99,6 +96,16 @@ model Verification {
   @@map("verification")
 }
 
+model Category {
+  id           String  @id @default(cuid())
+  age_group    String  @db.VarChar(30)
+  description  String? @db.VarChar(1255)
+  name         String
+  weight_range String  @db.VarChar(30)
+
+  @@map("category")
+}
+
 enum UserType {
   Student
   Instructor
@@ -106,27 +113,15 @@ enum UserType {
 }
 
 enum Belt {
-  WHITE   
-  GRAY    
-  YELLOW  
-  ORANGE  
-  GREEN   
-  BLUE    
-  PURPLE  
-  BROWN   
-  BLACK   
-  CORAL   
-  RED     
-}
-
-model Category {
-  id           String   @id @default(cuid())
-  name         String
-  description  String?  @db.VarChar(1255)
-  age_group    String   @db.VarChar(30)
-  weight_range String   @db.VarChar(30)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  @@map("category")
+  WHITE
+  GRAY
+  YELLOW
+  ORANGE
+  GREEN
+  BLUE
+  PURPLE
+  BROWN
+  BLACK
+  CORAL
+  RED
 }

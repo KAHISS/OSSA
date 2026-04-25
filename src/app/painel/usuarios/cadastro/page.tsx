@@ -17,8 +17,22 @@ import {
 
 export default function UsuarioCadastro() {
   const [userType, setUserType] = useState("");
-  const [genre, setGenre] = useState("");
-  const [belt, setBelt] = useState("");
+  const [genre, setGenre] = useState(""); // Corrigido
+  const [belt, setBelt] = useState("");   // Corrigido
+
+  const beltDictionary: Record<string, string> = {
+    Branca: "WHITE",
+    Cinza: "Gray",
+    Amarela: "YELLOW",
+    Laranja: "ORANGE",
+    Verde: "GREEN",
+    Azul: "BLUE",
+    Roxa: "PURPLE",
+    Marrom: "BROWN",
+    Preta: "BLACK",
+    Coral: "CORAL",
+    Vermelha: "RED",
+};
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,14 +45,15 @@ export default function UsuarioCadastro() {
       phone: formData.get("personalPhone"),
       emergency_phone: formData.get("emergencyPhone"),
       weight: Number(formData.get("weight")),
+      commission: Number(formData.get("commission")),
       type:
         userType === "aluno"
           ? "Student"
           : userType === "instrutor"
           ? "Instructor"
           : "Admin",
-      belt,
-      genre,
+      belt: beltDictionary[belt] || belt,
+      genre: genre,
       stripe: 0,
       birth_date: new Date().toISOString(), // ajuste depois
     };
@@ -75,21 +90,21 @@ export default function UsuarioCadastro() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Tipo de Usuário */}
           <div className="space-y-2">
-            <label className="text-lg font-semibold text-gray-700">
-              Tipo de Usuário
-            </label>
-            <Select onValueChange={setUserType}>
-              <SelectTrigger className="w-full h-10 bg-white border-indigo-400 focus:ring-indigo-500 text-[16px]">
-                <SelectValue placeholder="Selecione o tipo" />
-              </SelectTrigger>
-              <SelectContent className={fonts.oswald.className}>
-                <SelectGroup>
-                  <SelectItem value="aluno">Aluno</SelectItem>
-                  <SelectItem value="instrutor">Instrutor</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+        <label className="text-lg font-semibold text-gray-700"> Tipo de Usuário </label> 
+        <Select onValueChange={setUserType} >   
+         <SelectTrigger className="w-full h-10 bg-white border-indigo-400 focus:ring-indigo-500 text-[16px]">
+             <SelectValue placeholder="Selecione o tipo" /> </SelectTrigger>
+              <SelectContent position="popper">
+                <div className={fonts.oswald.className}>
+                  <SelectGroup>
+                    <SelectItem value="aluno">Aluno</SelectItem>
+                    <SelectItem value="instrutor">Instrutor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectGroup>
+                </div>
+                  </SelectContent> 
+        </Select>
+
           </div>
 
           {/* Nome */}
@@ -103,11 +118,12 @@ export default function UsuarioCadastro() {
           {/* Gênero */}
           <div className="space-y-2">
             <label className="text-lg font-semibold text-gray-700">Gênero</label>
-            <Select onValueChange={setGenre}>
-              <SelectTrigger className="w-full h-10 bg-white border-indigo-400 focus:ring-indigo-500 text-[16px]">
+            <Select onValueChange={setGenre} 
+  
+>              <SelectTrigger className="w-full h-10 bg-white border-indigo-400 focus:ring-indigo-500 text-[16px]">
                 <SelectValue placeholder="Selecione o gênero" />
               </SelectTrigger>
-              <SelectContent className={fonts.oswald.className}>
+              <SelectContent position="popper">
                 <SelectGroup>
                   <SelectItem value="masculino">Masculino</SelectItem>
                   <SelectItem value="feminino">Feminino</SelectItem>
@@ -141,11 +157,12 @@ export default function UsuarioCadastro() {
           {/* Faixa */}
           <div className="space-y-2">
             <label className="text-lg font-semibold text-gray-700">Faixa</label>
-            <Select onValueChange={setBelt}>
-              <SelectTrigger className="w-full h-10 bg-white border-indigo-400 focus:ring-indigo-500 text-[16px]">
+            <Select onValueChange={setBelt} 
+ 
+>              <SelectTrigger className="w-full h-10 bg-white border-indigo-400 focus:ring-indigo-500 text-[16px]">
                 <SelectValue placeholder="Selecione a faixa" />
               </SelectTrigger>
-              <SelectContent className={fonts.oswald.className}>
+              <SelectContent position="popper">
                 <SelectGroup>
                   <SelectItem value="Branca">Branca</SelectItem>
                   <SelectItem value="Azul">Azul</SelectItem>

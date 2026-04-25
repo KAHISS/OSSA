@@ -16,7 +16,7 @@ export async function validateData(data: any) {
 
     const beltDictionary: Record<string, string> = {
         Branca: "WHITE",
-        Cinza: "Gray",
+        Cinza: "GRAY", // corrigido
         Amarela: "YELLOW",
         Laranja: "ORANGE",
         Verde: "GREEN",
@@ -41,27 +41,52 @@ export async function validateData(data: any) {
     const searchStripe = data.stripe || 'todos';
 
     const query: any = {};
-    if (["Student", "Instructor", "Admin"].includes(String(data.type))) query.type = data.type
-    query.genre = data.genre;
-    if (searchName) query.name = { startsWith: searchName, mode: 'insensitive' };
-    if (searchEmail) query.email = { contains: searchEmail, mode: 'insensitive' };
-    if (searchPersonalPhone) query.phone = { contains: searchPersonalPhone };
-    if (searchEmergencyPhone) query.emergency_phone = { contains: searchEmergencyPhone };
+
+    // tipo de usuário
+    if (["Student", "Instructor", "Admin"].includes(String(data.type))) {
+        query.type = data.type;
+    }
+
+    // gênero (corrigido para evitar undefined)
+    if (data.genre) {
+        query.genre = data.genre;
+    }
+
+    if (searchName) {
+        query.name = { startsWith: searchName, mode: 'insensitive' };
+    }
+
+    if (searchEmail) {
+        query.email = { contains: searchEmail, mode: 'insensitive' };
+    }
+
+    if (searchPersonalPhone) {
+        query.phone = { contains: searchPersonalPhone };
+    }
+
+    if (searchEmergencyPhone) {
+        query.emergency_phone = { contains: searchEmergencyPhone };
+    }
+
     if (searchWeight) {
         query.weight = parseFloat(searchWeight);
     }
+
+    // filtro de comissão (corrigido relação)
     if (searchCommission) {
         query.instructor = {
-            commissionPerStudent: parseFloat(searchCommission)
+            is: {
+                commissionPerStudent: parseFloat(searchCommission)
+            }
         };
     }
 
+    // filtro de faixa e grau
     if (searchBelt !== 'todas' || searchStripe !== 'todos') {
         const conditionBeltStripe: any = {};
 
         if (searchBelt !== 'todas') {
-            const [belt] = Object.entries(beltDictionary).find(([key, val]) => val === searchBelt) || [searchBelt.toLocaleUpperCase()];
-            conditionBeltStripe.belt = belt;
+            conditionBeltStripe.belt = searchBelt; // usa direto o enum
         }
 
         if (searchStripe !== 'todos') {
@@ -74,12 +99,14 @@ export async function validateData(data: any) {
         ];
     }
 
+    // filtro por data
     if (searchYear) {
         const yearNum = parseInt(searchYear);
         let startDate, endDate;
 
         if (searchMonth) {
             const monthNum = parseInt(searchMonth);
+
             if (searchDay) {
                 const dayNum = parseInt(searchDay);
                 startDate = new Date(Date.UTC(yearNum, monthNum - 1, dayNum, 0, 0, 0));
@@ -105,6 +132,7 @@ export async function validateData(data: any) {
         orderBy: { createdAt: 'desc' }
     });
 
+    // filtro adicional (dia/mês sem ano)
     if (!searchYear && (searchMonth || searchDay)) {
         users = users.filter((user) => {
             if (!user.birth_date) return false;
@@ -127,9 +155,9 @@ export async function validateData(data: any) {
         });
     }
 
-    query.searchDay = searchDay
-    query.searchMonth = searchMonth
-    query.searchYear = searchYear
+    query.searchDay = searchDay;
+    query.searchMonth = searchMonth;
+    query.searchYear = searchYear;
 
     return { query, users };
 }
