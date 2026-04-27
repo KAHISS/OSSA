@@ -42,12 +42,10 @@ export async function validateData(data: any) {
 
     const query: any = {};
 
-    // tipo de usuário
     if (["Student", "Instructor", "Admin"].includes(String(data.type))) {
         query.type = data.type;
     }
 
-    // gênero (corrigido para evitar undefined)
     if (data.genre) {
         query.genre = data.genre;
     }
@@ -72,7 +70,6 @@ export async function validateData(data: any) {
         query.weight = parseFloat(searchWeight);
     }
 
-    // filtro de comissão (corrigido relação)
     if (searchCommission) {
         query.instructor = {
             is: {
@@ -86,7 +83,8 @@ export async function validateData(data: any) {
         const conditionBeltStripe: any = {};
 
         if (searchBelt !== 'todas') {
-            conditionBeltStripe.belt = searchBelt; // usa direto o enum
+            const translatedBelt = beltDictionary[searchBelt] || searchBelt.toUpperCase();
+            conditionBeltStripe.belt = translatedBelt;
         }
 
         if (searchStripe !== 'todos') {
