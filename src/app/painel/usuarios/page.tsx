@@ -381,7 +381,17 @@ export default async function UsersPage({
                                             : 'Administrador'}
                                 </TableCell>
 
-                                <TableCell>{user.belt !== '' ? beltDictionary[user.belt] : '-'}</TableCell>
+                                <TableCell>{(() => {
+                                    const userBelt = user.student?.belt || user.instructor?.belt;
+
+                                    if (!userBelt) return '-';
+
+                                    const beltName = Object.keys(beltDictionary).find(
+                                        (key) => beltDictionary[key] === userBelt
+                                    );
+
+                                    return beltName || userBelt;
+                                })()}</TableCell>
 
                                 <TableCell className="flex justify-end items-center gap-2 py-4">
 
