@@ -118,29 +118,25 @@ export default function UsuarioCadastro() {
 
               <div className="flex flex-wrap items-center justify-between w-full gap-4">
                 <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                  <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('type', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
-                  </Button>
+                 
                   <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'Student' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('type', 'Student', params)} className="!no-underline hover:no-underline">Alunos</Link>
+                    <Link href={createFilterLink('type', 'Student', params)} className="!no-underline hover:no-underline">Aluno</Link>
                   </Button>
                   <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'Instructor' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('type', 'Instructor', params)} className="!no-underline hover:no-underline">Instrutores</Link>
+                    <Link href={createFilterLink('type', 'Instructor', params)} className="!no-underline hover:no-underline">Instrutore</Link>
                   </Button>
                   <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === 'Admin' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('type', 'Admin', params)} className="!no-underline hover:no-underline">Admins</Link>
+                    <Link href={createFilterLink('type', 'Admin', params)} className="!no-underline hover:no-underline">Admin</Link>
                   </Button>
                 </div>
 
                 <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
-                  <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('genre', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
-                  </Button>
+                  
                   <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'M' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('genre', 'M', params)} className="!no-underline hover:no-underline">Homens</Link>
+                    <Link href={createFilterLink('genre', 'M', params)} className="!no-underline hover:no-underline">Masculino</Link>
                   </Button>
                   <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'F' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
-                    <Link href={createFilterLink('genre', 'F', params)} className="!no-underline hover:no-underline">Mulheres</Link>
+                    <Link href={createFilterLink('genre', 'F', params)} className="!no-underline hover:no-underline">Feminino</Link>
                   </Button>
                 </div>
               </div>
