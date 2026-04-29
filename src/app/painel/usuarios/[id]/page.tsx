@@ -1,26 +1,51 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { fonts } from "@/utils/fonts";
 
-export default function UsuarioCreate() {
-  // Estados para controlar os selects
-  const [userType, setUserType] = useState("aluno");
-  const [belt, setBelt] = useState("Branca");
-  const [genre, setGenre] = useState("masculino"); // Novo estado para gênero
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FaArrowLeft, FaTh } from "react-icons/fa";
+import Confirmation from "@/components/ui/confirmation";
+import { createFilterLink } from "@/utils/filters";
+import { useSearchParams } from "next/navigation";
+
+export default function UsuarioEdicao() {
+  const searchParams = useSearchParams();
+  const currentType = searchParams.get("type") || "todos";
+  const currentGenre = searchParams.get("genre") || "todos";
+  const [belt, setBelt] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  const beltDictionary: Record<string, string> = {
+    Branca: "WHITE",
+    Cinza: "Gray",
+    Amarela: "YELLOW",
+    Laranja: "ORANGE",
+    Verde: "GREEN",
+    Azul: "BLUE",
+    Roxa: "PURPLE",
+    Marrom: "BROWN",
+    Preta: "BLACK",
+    Coral: "CORAL",
+    Vermelha: "RED",
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    setIsPending(true);
     const formData = new FormData(e.currentTarget);
-    
+
     const data = {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -28,149 +53,207 @@ export default function UsuarioCreate() {
       emergency_phone: formData.get("emergencyPhone"),
       weight: Number(formData.get("weight")),
       commission: Number(formData.get("commission")),
+      type: currentType === "Student" ? "Student" : currentType === "Instructor" ? "Instructor" : "Admin",
+      belt: beltDictionary[belt] || belt,
+      genre: currentGenre,
       stripe: Number(formData.get("stripe")),
-      type: userType === "aluno" ? "Student" : userType === "instrutor" ? "Instructor" : "Admin",
-      belt: belt,
-      genre: genre, // Atributo adicionado aqui
-      birth_date: new Date().toISOString(), 
+      birth_date: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch("/api/users/ID_DO_USUARIO", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error("Erro ao atualizar usuário");
-
+      console.log("Salvando:", data);
       alert("Usuário atualizado com sucesso!");
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao salvar alterações");
+    } finally {
+      setIsPending(false);
     }
   };
 
+  function handleConfirm(): void {
+    const form = document.querySelector('form');
+    if(form) form.requestSubmit();
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto p-10 bg-white rounded-2xl shadow-md space-y-10">
-      
-      <div>
-        <h1 className="text-3xl font-bold text-indigo-700">
+    <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <h1 className={`text-4xl md:text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
+          <FaTh className="text-red-700 text-3xl md:text-5xl" />
           Editar Usuário
         </h1>
-        <FieldDescription className="text-gray-600">
-          Atualize os dados do usuário
-        </FieldDescription>
+
+        <Button variant="outline" asChild className="w-full sm:w-auto h-10 md:h-11 px-6 text-lg md:text-xl font-semibold border-zinc-900 text-zinc-900">
+          <Link href="/painel/usuarios" className="flex items-center justify-center gap-2">
+            <FaArrowLeft className="text-xs" /> Voltar
+          </Link>
+        </Button>
       </div>
 
-      <FieldGroup className="space-y-8">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg space-y-6">
+        {/* Filtros de Tipo e Gênero */}
+        {(() => {
+          const params = new URLSearchParams(searchParams.toString());
+          return (
+            <div className="flex flex-wrap items-center justify-between w-full gap-4">
+              <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
+                {['todos', 'Student', 'Instructor', 'Admin'].map((t) => (
+                  <Button key={t} variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentType === t ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                    <Link href={createFilterLink('type', t, params)} className="!no-underline hover:no-underline">
+                      {t === 'todos' ? 'Todos' : t === 'Student' ? 'Alunos' : t === 'Instructor' ? 'Instrutores' : 'Admins'}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
 
-        {/* Grupo: Identificação */}
+              <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
+                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'todos' ? 'bg-white shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                  <Link href={createFilterLink('genre', 'todos', params)} className="!no-underline hover:no-underline">Todos</Link>
+                </Button>
+                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'M' ? 'bg-cyan-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                  <Link href={createFilterLink('genre', 'M', params)} className="!no-underline hover:no-underline">Homens</Link>
+                </Button>
+                <Button variant="ghost" asChild className={`h-9 px-5 rounded-md text-[16px] font-medium transition-all ${currentGenre === 'F' ? 'bg-pink-500 shadow-sm text-black hover:bg-white' : 'text-gray-500 hover:text-black'}`}>
+                  <Link href={createFilterLink('genre', 'F', params)} className="!no-underline hover:no-underline">Mulheres</Link>
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Tipo de Usuário</FieldLabel>
-            <select 
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-              className="w-full h-12 border-indigo-400 rounded-md bg-white text-base px-3 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="aluno">Aluno</option>
-              <option value="instrutor">Instrutor</option>
-              <option value="admin">Admin</option>
-            </select>
-          </Field>
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-lg font-semibold text-gray-700">Nome Completo</label>
+            <Input name="name" placeholder="Digite o nome..." className="border-gray-300 focus:ring-zinc-900" />
+          </div>
 
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Gênero</FieldLabel>
-            <select 
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="w-full h-12 border-indigo-400 rounded-md bg-white text-base px-3 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="masculino">Masculino</option>
-              <option value="feminino">Feminino</option>
-              <option value="outro">Outro</option>
-            </select>
-          </Field>
+          <div className="space-y-2">
+            <label className="text-lg font-semibold text-gray-700">E-mail</label>
+            <Input name="email" placeholder="Digite o e-mail..." className="border-gray-300 focus:ring-zinc-900" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-lg font-semibold text-gray-700">Telefone Pessoal</label>
+            <Input name="personalPhone" placeholder="Digite o telefone..." className="border-gray-300 focus:ring-zinc-900" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-lg font-semibold text-gray-700">Telefone de Emergência</label>
+            <Input name="emergencyPhone" placeholder="Digite o telefone..." className="border-gray-300 focus:ring-zinc-900" />
+          </div>
+
+          {/* Consulta de Faixa IGUAL ao código enviado */}
+          <div className="space-y-2">
+            <label className="text-lg font-semibold text-gray-700">Faixa</label>
+            <Select value={belt} onValueChange={setBelt}>
+              <input type="hidden" name="belt" value={belt} />
+              <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
+                <SelectValue placeholder="Selecione a faixa" />
+              </SelectTrigger>
+              <SelectContent className={fonts.oswald.className}>
+                <SelectGroup>
+                  <SelectLabel>Faixas</SelectLabel>
+                  <SelectItem value="todas"><span className="ml-6">Todas as Faixas</span></SelectItem>
+                  <SelectItem value="Branca">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-white border border-gray-300 rounded-sm shadow-sm"></div>
+                      <span>Faixa Branca</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Cinza">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-gray-600 border border-gray-300 rounded-sm shadow-sm"></div>
+                      <span>Faixa Cinza</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Amarela">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-yellow-400 border border-gray-300 rounded-sm shadow-sm"></div>
+                      <span>Faixa Amarela</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Laranja">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-orange-500 border border-gray-300 rounded-sm shadow-sm"></div>
+                      <span>Faixa Laranja</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Verde">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-green-600 border border-gray-300 rounded-sm shadow-sm"></div>
+                      <span>Faixa Verde</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Azul">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-blue-600 rounded-sm shadow-sm"></div>
+                      <span>Faixa Azul</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Roxa">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-purple-600 rounded-sm shadow-sm"></div>
+                      <span>Faixa Roxa</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Marrom">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-[#5C4033] rounded-sm shadow-sm"></div>
+                      <span>Faixa Marrom</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Preta">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-black rounded-sm shadow-sm"></div>
+                      <span>Faixa Preta</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Coral">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-sm shadow-sm bg-[linear-gradient(to_bottom_right,#ef4444_50%,#000000_50%)]"></div>
+                      <span>Faixa Coral (Vermelha e Preta)</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Vermelha">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 bg-red-600 rounded-sm shadow-sm"></div>
+                      <span>Faixa Vermelha</span>
+                    </div>
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-gray-700">Grau</label>
+              <Input name="stripe" type="number" placeholder="0-4" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-gray-700">Peso</label>
+              <Input name="weight" placeholder="Kg" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-gray-700">Comissão</label>
+              <Input name="commission" placeholder="%" />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Nome Completo</FieldLabel>
-            <Input name="name" placeholder="Digite o nome completo..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">E-mail</FieldLabel>
-            <Input name="email" type="email" placeholder="Digite o e-mail..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 border-t border-gray-100">
+          <Button type="button" variant="secondary" asChild className="w-full sm:w-auto bg-gray-200 text-gray-800 h-12 px-8 text-xl font-semibold">
+            <Link href="/painel/usuarios" className="flex justify-center">Cancelar</Link>
+          </Button>
+          <Confirmation
+            title="Confirmar Atualização"
+            message="Deseja salvar as alterações deste usuário?"
+            isPending={isPending}
+            buttonText="Salvar Alterações"
+            handleConfirm={handleConfirm}
+            classNameButton="w-full sm:w-auto bg-zinc-900 text-white h-12 px-8 text-xl font-semibold"
+          />
         </div>
-
-        {/* Grupo: Contatos */}
-        <div className="grid grid-cols-2 gap-6">
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Telefone Pessoal</FieldLabel>
-            <Input name="personalPhone" placeholder="Digite o telefone..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Telefone de Emergência</FieldLabel>
-            <Input name="emergencyPhone" placeholder="Digite o telefone..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
-        </div>
-
-        {/* Grupo: Status (Faixa e Listras) */}
-        <div className="grid grid-cols-2 gap-6">
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Faixa</FieldLabel>
-            <select 
-              value={belt}
-              onChange={(e) => setBelt(e.target.value)}
-              className="w-full h-12 border-indigo-400 rounded-md bg-white text-base px-3 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="Branca">Branca</option>
-              <option value="Azul">Azul</option>
-              <option value="Roxa">Roxa</option>
-              <option value="Marrom">Marrom</option>
-              <option value="Preta">Preta</option>
-              <option value="Coral">Coral</option>
-              <option value="Vermelha">Vermelha</option>
-            </select>
-          </Field>
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Listras</FieldLabel>
-            <Input name="stripe" type="number" placeholder="0-4" className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
-        </div>
-
-        {/* Grupo: Dados adicionais */}
-        <div className="grid grid-cols-2 gap-6">
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Peso</FieldLabel>
-            <Input name="weight" type="number" placeholder="Digite o peso..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
-          <Field>
-            <FieldLabel className="text-lg font-semibold text-gray-700">Comissão</FieldLabel>
-            <Input name="commission" type="number" placeholder="Digite a comissão..." className="h-12 text-base border-indigo-400 focus:ring-indigo-500" />
-          </Field>
-        </div>
-
-      </FieldGroup>
-
-      <div className="flex justify-end gap-4 pt-6 border-t">
-        <Button 
-          variant="outline" 
-          type="reset" 
-          className="h-12 px-6 text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300"
-        >
-          Limpar
-        </Button>
-        <Button 
-          type="submit" 
-          className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-semibold"
-        >
-          Salvar Alterações
-        </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
