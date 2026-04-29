@@ -74,10 +74,10 @@ export default async function UsersPage({
         stripe?: string;
     }>
 }) {
-
     // data
     const params: any = await searchParams;
     const { query, users }: any = await validateData(params)
+    console.log(query)
 
     // interface
     const columns = ["Usuario", "Email", "Sexo", "Telefone", "Tipo", "Faixa", "Grau", "Comissão", "Ações"]
@@ -157,7 +157,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Nome Completo</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="name" defaultValue={query.name || ""} placeholder="Digite o nome..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="name" defaultValue={params.name || ""} placeholder="Digite o nome..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -165,7 +165,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">E-mail</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="email" defaultValue={query.email || ""} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="email" defaultValue={params.email || ""} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -173,7 +173,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Telefone Pessoal</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="personalPhone" defaultValue={query.personal_phone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="personalPhone" defaultValue={params.personalPhone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -181,13 +181,13 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Telefone de Emergência</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="emergencyPhone" defaultValue={query.emergency_phone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="emergencyPhone" defaultValue={params.emergencyPhone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa</label>
-                                    <Select defaultValue={query.belt || "todas"} name="belt">
+                                    <Select defaultValue={params.belt || "todas"} name="belt">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione a faixa" />
                                         </SelectTrigger>
@@ -268,7 +268,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Grau</label>
-                                    <Select defaultValue={query.stripe || "todos"} name="stripe">
+                                    <Select defaultValue={params.stripe || "todos"} name="stripe">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione o grau" />
                                         </SelectTrigger>
@@ -291,20 +291,20 @@ export default async function UsersPage({
                                     <div className="flex gap-2">
                                         <Input
                                             name="day"
-                                            defaultValue={query.searchDay || ""}
+                                            defaultValue={params.day || ""}
                                             type="number" min="1" max="31" placeholder="Dia"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
                                             name="month"
-                                            defaultValue={query.searchMonth || ""}
+                                            defaultValue={params.month || ""}
                                             type="number" min="1" max="12" placeholder="Mês"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                         <Input
                                             name="year"
-                                            defaultValue={query.searchYear || ""}
-                                            type="number" min="1900" placeholder="Ano"
+                                            defaultValue={params.year || ""}
+                                            type="number" min="1900" max={new Date().getFullYear()} placeholder="Ano"
                                             className="w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px] text-center px-1"
                                         />
                                     </div>
@@ -314,7 +314,7 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Peso</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="weight" defaultValue={query.weight || ""} placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="weight" defaultValue={params.weight || ""} placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -322,14 +322,14 @@ export default async function UsersPage({
                                     <label className="text-sm font-semibold text-gray-700">Comissão</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="commission" defaultValue={query.instructor?.commissionPerStudent || ""} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="commission" defaultValue={params.commission || ""} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                                 <Button variant="secondary" asChild className="bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 px-6 font-semibold">
-                                    <Link href="/painel/usuarios" className="!no-underline">Limpar</Link>
+                                    <a href="/painel/usuarios" className="!no-underline">Limpar</a>
                                 </Button>
                                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold">
                                     Filtrar usuários
@@ -344,10 +344,10 @@ export default async function UsersPage({
                     <TableRow className="font-normal text-[20px]">
                         <TableHead className="w-[100px]">Nome</TableHead>
                         <TableHead>Email</TableHead>
+                        <TableHead>Sexo</TableHead>
                         <TableHead>Telefone</TableHead>
-                        <TableHead>Peso</TableHead>
                         <TableHead>Tipo</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>Faixa</TableHead>
                         <TableHead className="text-right">Ação</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -381,21 +381,17 @@ export default async function UsersPage({
                                             : 'Administrador'}
                                 </TableCell>
 
-                                <TableCell className="capitalize">
-                                    {(() => {
-                                        const userBelt = user.student?.belt || user.instructor?.belt;
+                                <TableCell>{(() => {
+                                    const userBelt = user.student?.belt || user.instructor?.belt;
 
-                                        return userBelt ? beltDictionary[userBelt] || userBelt : '-';
-                                    })()}
-                                </TableCell>
+                                    if (!userBelt) return '-';
 
-                                <TableCell>
-                                    {user.student?.stripe ?? user.instructor?.stripe ?? '-'}
-                                </TableCell>
+                                    const beltName = Object.keys(beltDictionary).find(
+                                        (key) => beltDictionary[key] === userBelt
+                                    );
 
-                                <TableCell>
-                                    {user.instructor?.commissionPerStudent ? `R$ ${user.instructor.commissionPerStudent.toString()}` : '-'}
-                                </TableCell>
+                                    return beltName || userBelt;
+                                })()}</TableCell>
 
                                 <TableCell className="flex justify-end items-center gap-2 py-4">
 
@@ -417,7 +413,7 @@ export default async function UsersPage({
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={12} className="h-24 text-center text-gray-500 text-lg">
+                            <TableCell colSpan={6} className="h-24 text-center text-gray-500 text-lg">
                                 Não há usuários cadastrados no momento.
                             </TableCell>
                         </TableRow>

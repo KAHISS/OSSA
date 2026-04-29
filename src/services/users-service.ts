@@ -16,7 +16,7 @@ export async function validateData(data: any) {
 
     const beltDictionary: Record<string, string> = {
         Branca: "WHITE",
-        Cinza: "Gray",
+        Cinza: "GRAY", // corrigido
         Amarela: "YELLOW",
         Laranja: "ORANGE",
         Verde: "GREEN",
@@ -30,38 +30,57 @@ export async function validateData(data: any) {
 
     const searchName = data.name || '';
     const searchEmail = data.email || '';
+    const searchGenre = data.genre || '';
     const searchPersonalPhone = data.personalPhone || '';
     const searchEmergencyPhone = data.emergencyPhone || '';
     const searchDay = data.day || '';
     const searchMonth = data.month || '';
     const searchYear = data.year || '';
     const searchWeight = data.weight || '';
+    const searchType = data.type || '';
     const searchCommission = data.commission || '';
     const searchBelt = data.belt || 'todas';
     const searchStripe = data.stripe || 'todos';
 
     const query: any = {};
-    if (["Student", "Instructor", "Admin"].includes(String(data.type))) query.type = data.type
-    query.genre = data.genre;
-    if (searchName) query.name = { startsWith: searchName, mode: 'insensitive' };
-    if (searchEmail) query.email = { contains: searchEmail, mode: 'insensitive' };
-    if (searchPersonalPhone) query.phone = { contains: searchPersonalPhone };
-    if (searchEmergencyPhone) query.emergency_phone = { contains: searchEmergencyPhone };
-    if (searchWeight) {
-        query.weight = parseFloat(searchWeight);
-    }
-    if (searchCommission) {
-        query.instructor = {
-            commissionPerStudent: parseFloat(searchCommission)
-        };
+    
+    if (searchGenre && searchGenre !== 'todos') {
+        query.genre = searchGenre;
     }
 
+    if (searchType && searchType !== 'todos') {
+        query.type = searchType;
+    }
+
+    if (searchName.trim() !== '') {
+        query.name = { contains: searchName.trim(), mode: 'insensitive' };
+    }
+    if (searchEmail.trim() !== '') {
+        query.email = { contains: searchEmail.trim(), mode: 'insensitive' };
+    }
+    if (searchPersonalPhone.trim() !== '') {
+        query.phone = { contains: searchPersonalPhone.trim() }; 
+    }
+    if (searchEmergencyPhone.trim() !== '') {
+        query.emergency_phone = { contains: searchEmergencyPhone.trim() };
+    }
+
+    if (searchWeight.trim() !== '') {
+        query.weight = parseFloat(searchWeight);
+    }
+    if (searchCommission.trim() !== '') {
+        query.instructor = {
+            is: { commissionPerStudent: parseFloat(searchCommission) }
+        };
+    }
+    
+    // filtro de faixa e grau
     if (searchBelt !== 'todas' || searchStripe !== 'todos') {
         const conditionBeltStripe: any = {};
 
         if (searchBelt !== 'todas') {
-            const [belt] = Object.entries(beltDictionary).find(([key, val]) => val === searchBelt) || [searchBelt.toLocaleUpperCase()];
-            conditionBeltStripe.belt = belt;
+            const translatedBelt = beltDictionary[searchBelt] || searchBelt.toUpperCase();
+            conditionBeltStripe.belt = translatedBelt;
         }
 
         if (searchStripe !== 'todos') {
@@ -74,12 +93,14 @@ export async function validateData(data: any) {
         ];
     }
 
+    // filtro por data
     if (searchYear) {
         const yearNum = parseInt(searchYear);
         let startDate, endDate;
 
         if (searchMonth) {
             const monthNum = parseInt(searchMonth);
+
             if (searchDay) {
                 const dayNum = parseInt(searchDay);
                 startDate = new Date(Date.UTC(yearNum, monthNum - 1, dayNum, 0, 0, 0));
@@ -105,6 +126,7 @@ export async function validateData(data: any) {
         orderBy: { createdAt: 'desc' }
     });
 
+    // filtro adicional (dia/mês sem ano)
     if (!searchYear && (searchMonth || searchDay)) {
         users = users.filter((user) => {
             if (!user.birth_date) return false;
@@ -127,9 +149,9 @@ export async function validateData(data: any) {
         });
     }
 
-    query.searchDay = searchDay
-    query.searchMonth = searchMonth
-    query.searchYear = searchYear
+    query.searchDay = searchDay;
+    query.searchMonth = searchMonth;
+    query.searchYear = searchYear;
 
     return { query, users };
 }
