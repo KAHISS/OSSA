@@ -1,72 +1,153 @@
 "use client";
-
 import { fonts } from "@/utils/fonts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { 
-    FaUserPlus, 
+    FaTh, 
     FaArrowLeft, 
-    FaUser, 
-    FaEnvelope, 
-    FaCalendarAlt, 
-    FaPhone, 
-    FaPhoneSlash, 
-    FaVenusMars, 
-    FaUserShield, 
-    FaWeightHanging,
-    FaRibbon,
+    FaLayerGroup, 
+    FaWeightHanging, 
+    FaTag, 
+    FaPhoneSlash,
+    FaPhone,
     FaListOl,
-    FaPercentage 
+    FaPercentage,
+    FaRibbon,
+    FaUserShield,
+    FaVenusMars,
+    FaCalendarAlt,
+    FaEnvelope,
+    FaUser,
+    FaUserPlus
 } from 'react-icons/fa';
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import Link from "next/link";
-import { createUser } from "@/services/users-services";
+import { updateUser } from "@/services/users-services";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Confirmation from "@/components/ui/confirmation";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function CreateUserPage() {
+export default function UpdateuserPage() {
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
-    
-    const [userType, setUserType] = useState<string>("");
+    const params = useParams();
 
-    const [state, formAction, isPending] = useActionState(createUser, { 
+    const [state, formAction, isPending] = useActionState(updateUser, { 
         message: "", 
         status: "" 
     });
 
-    const handleConfirm = () => {
-        formRef.current?.requestSubmit();
-    };
+    const [userType, setUserType] = useState<string>("");
+    
+    const [formValues, setFormValues] = useState({
+      id: "",
+      name: "",
+      email: "",
+      phone: "",
+      emergency_phone: "",
+      weight: "",
+      comission: "",
+      genre: "",
+      birth_date: "",
+      type: "",
+      belt: "",
+      stripe: "",
+    });
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
+    const handleConfirm = () => {
+        formRef.current?.requestSubmit(); // Dispara o formulário respeitando as validações do HTML5
+    };
+    
     useEffect(() => {
         if (state?.message) {
             if (state.status === "error") {
-                toast.error("Erro", { description: state.message });
+                toast.error("Erro", {
+                  description: state.message,
+                });
             } else if (state.status === "success") {
-                toast.success("Sucesso!", { description: state.message });
+                toast.success("Sucesso!", {
+                    description: state.message,
+                  });
                 router.push("/painel/usuarios");
             }
         }
-    }, [state, router]);
+    }, [router, state]);
 
-    return (
+    useEffect(() => {
+      const userId = params?.id;
+      if (!userId) return;
+
+      async function loaduser() {
+        try {
+          const response = await fetch(`/api/usuarios/${userId}`);
+          if (!response.ok) {
+            throw new Error("Usuario não encontrada");
+          }
+
+          const user = await response.json();
+          const [startAge, finishAge] = (user.age_group || "0-0").split("-");
+          const [startWeight, finishWeight] = (user.weight_range || "0-0").split("-");
+          setFormValues({
+            id: user.id,
+            name: user.name || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            emergency_phone: user.emergency_phone || "",
+            weight: user.weight ? String(user.weight) : "",
+            comission: user.instructor?.commissionPerStudent ? String(user.instructor.commissionPerStudent) : "",
+            genre: user.genre || "",
+            birth_date: user.birth_date ? new Date(user.birth_date).toISOString().split("T")[0] : "",
+            type: user.type || "",
+            belt: user.student?.belt || user.instructor?.belt || "WHITE",
+            stripe: user.student?.stripe !== undefined ? String(user.student.stripe) : (user.instructor?.stripe !== undefined ? String(user.instructor.stripe) : "0"),
+          });
+        } catch (error) {
+          setLoadError((error as Error).message);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      loaduser();
+    }, [params]);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = event.target;
+      setFormValues((prev) => ({ ...prev, [name]: value }));
+    };
+    
+    if (isLoading) {
+      return (
         <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
+          <p className="text-gray-600">Carregando dados do Usuario...</p>
+        </div>
+      );
+    }
+    
+    // Define o tipo de usuário com base nos dados carregados
+    if (loadError) {
+      return (
+        <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
+          <div className="bg-white rounded-lg border p-6 shadow-sm">
+            <p className="text-red-600">{loadError}</p>
+            <Button asChild className="mt-4">
+              <Link href="/painel/users">Voltar</Link>
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h1 className={`text-4xl md:text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
-                    <FaUserPlus className="text-red-700 text-3xl md:text-5xl" />
-                    Novo Usuário
+                    <FaUser className="text-red-700 text-3xl md:text-5xl" />
+                    Editar Usuário
                 </h1>
 
                 <Button variant="outline" asChild className="w-full sm:w-auto h-10 md:h-11 px-6 text-lg md:text-xl font-semibold border-zinc-900 text-zinc-900">
@@ -78,7 +159,7 @@ export default function CreateUserPage() {
 
             <div className="bg-white rounded-lg border p-4 md:p-8 shadow-sm">
                 <form ref={formRef} action={formAction} className="space-y-6 md:space-y-8">
-                    
+                    <input type="hidden" name="id" value={formValues.id} />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         
                         {/* Nome Completo */}
@@ -89,6 +170,7 @@ export default function CreateUserPage() {
                             <Input 
                                 name="name" 
                                 required 
+                                defaultValue={formValues.name}
                                 placeholder="Digite o nome completo" 
                                 className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
                             />
@@ -102,6 +184,7 @@ export default function CreateUserPage() {
                             <Input 
                                 name="email" 
                                 type="email"
+                                defaultValue={formValues.email}
                                 required 
                                 placeholder="exemplo@email.com" 
                                 className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
@@ -116,6 +199,7 @@ export default function CreateUserPage() {
                             <Input 
                                 name="birth_date" 
                                 type="date"
+                                defaultValue={formValues.birth_date}
                                 required 
                                 className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
                             />
@@ -130,6 +214,7 @@ export default function CreateUserPage() {
                                 <select 
                                     name="genre" 
                                     required 
+                                    defaultValue={formValues.genre}
                                     className="flex h-12 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
                                 >
                                     <option value="">Selecione</option>
@@ -145,6 +230,7 @@ export default function CreateUserPage() {
                                     name="weight" 
                                     type="number" 
                                     step="0.01" 
+                                    defaultValue={formValues.weight}
                                     required 
                                     placeholder="00.00" 
                                     className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
@@ -160,7 +246,9 @@ export default function CreateUserPage() {
                                 </label>
                                 <select 
                                     name="type" 
-                                    required 
+                                    required
+                                    onLoad={(e) => setUserType(formValues.type)} 
+                                    defaultValue={formValues.type}
                                     onChange={(e) => setUserType(e.target.value)}
                                     className="flex h-12 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
                                 >
@@ -179,6 +267,7 @@ export default function CreateUserPage() {
                                     <Input 
                                         name="commission" 
                                         type="number" 
+                                        defaultValue={formValues.comission}
                                         required 
                                         placeholder="0" 
                                         className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
@@ -193,9 +282,9 @@ export default function CreateUserPage() {
                                 <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                     <FaRibbon className="text-red-700" /> Faixa
                                 </label>
-                                <Select name="belt" required>
+                                <Select name="belt" required defaultValue={formValues.belt}>
                                     <SelectTrigger className="w-full h-12 bg-white border-gray-300 focus:ring-zinc-900 text-lg">
-                                        <SelectValue placeholder="Selecione a faixa" />
+                                        <SelectValue placeholder="Selecione a faixa"/>
                                     </SelectTrigger>
                                     <SelectContent className={fonts.oswald.className}>
                                         <SelectGroup>
@@ -276,7 +365,8 @@ export default function CreateUserPage() {
                                     <FaListOl className="text-red-700" /> Graus
                                 </label>
                                 <select 
-                                    name="degrees" 
+                                    name="stripe" 
+                                    defaultValue={formValues.stripe}
                                     required 
                                     className="flex h-12 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
                                 >
@@ -296,13 +386,13 @@ export default function CreateUserPage() {
                                     <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                         <FaPhone className="text-red-700" /> Telefone Celular
                                     </label>
-                                    <Input name="phone" required placeholder="(00) 00000-0000" className="h-11 bg-white" />
+                                    <Input name="phone" required placeholder="(00) 00000-0000" defaultValue={formValues.phone} className="h-11 bg-white" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                         <FaPhoneSlash className="text-red-700" /> Telefone de Emergência
                                     </label>
-                                    <Input name="emergency_phone" required placeholder="(00) 00000-0000" className="h-11 bg-white" />
+                                    <Input name="emergency_phone" required placeholder="(00) 00000-0000" className="h-11 bg-white" defaultValue={formValues.emergency_phone} />
                                 </div>
                             </div>
                         </div>
@@ -314,10 +404,10 @@ export default function CreateUserPage() {
                             <Link href="/painel/usuarios" className="flex justify-center">Cancelar</Link>
                         </Button>
                         <Confirmation
-                            title="Confirmar Cadastro"
-                            message="Deseja salvar o novo usuário no sistema?"
+                            title="Confirmar Edição"
+                            message="Deseja salvar os novos dados do usuário no sistema?"
                             isPending={isPending}
-                            buttonText="Cadastrar Usuário"
+                            buttonText="Atualizar Usuário"
                             handleConfirm={handleConfirm}
                             classNameButton="w-full sm:w-auto bg-zinc-900 text-white h-12 px-8 text-xl font-semibold"
                         />

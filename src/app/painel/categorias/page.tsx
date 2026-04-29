@@ -100,7 +100,7 @@ export default async function CategoriesPage({
                 className="w-full bg-card p-4 rounded-lg border "
             >
                 <AccordionItem value="teste">
-                    <AccordionTrigger className="no-underline hover:no-underline">
+                    <AccordionTrigger className="no-underline hover:no-underline cursor-pointer">
                         <h2 className="text-xl font-bold text-gray-800 ">Filtros de Busca</h2>
                     </AccordionTrigger>
                     <AccordionContent>
@@ -108,7 +108,7 @@ export default async function CategoriesPage({
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Nome da categoria</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="name" defaultValue={params.name} placeholder="Digite o name..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -116,7 +116,7 @@ export default async function CategoriesPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Descrição</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="description" defaultValue={params.description} placeholder="Digite a descrição..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -125,7 +125,7 @@ export default async function CategoriesPage({
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa etária</label>
                                     <Select defaultValue={params.age_group} name="age_group">
-                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
+                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px] mt-2">
                                             <SelectValue placeholder="Selecione a faixa etária" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
@@ -147,7 +147,7 @@ export default async function CategoriesPage({
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa de Peso</label>
                                     <Select defaultValue={params.weight_range} name="weight_range">
-                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
+                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px] mt-2">
                                             <SelectValue placeholder="Selecione a faixa de peso"/>
                                         </SelectTrigger>
                                         <SelectContent className={`${fonts.oswald.className}`}>
@@ -168,9 +168,9 @@ export default async function CategoriesPage({
                             </div>
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                                 <Button variant="secondary" asChild className="bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 px-6 font-semibold">
-                                    <Link href="/painel/categorias" className="no-underline">Limpar</Link>
+                                    <Link href="/painel/categorias" className="!no-underline">Limpar</Link>
                                 </Button>
-                                <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white h-10 px-6 font-semibold">
+                                <Button type="submit" className="bg-black hover:bg-[#333] text-white h-10 px-6 font-semibold cursor-pointer">
                                     Filtrar Categorias
                                 </Button>
                             </div>
@@ -182,15 +182,18 @@ export default async function CategoriesPage({
             <Table className="text-base mt-6">
                 <TableHeader>
                     <TableRow className="font-bold text-[20px]">
-                        {
-                            columns.map(column => (
-                                column === "Usuario" ? (
-                                    <TableHead key={column} className="w-[150px]">{column}</TableHead>
-                                ) : (
-                                    <TableHead key={column}>{column}</TableHead>
-                                )
-                            ))
-                        }
+                        {columns.map((column) => (
+                            <TableHead 
+                                key={column} 
+                                className={
+                                    column === "Nome" || column == "Descrição" ? "w-[20%]" : 
+                                    column === "Ações" ? "text-right" : 
+                                    "w-[15%]"
+                                }
+                            >
+                                {column}
+                            </TableHead>
+                        ))}
                     </TableRow>
                 </TableHeader>
                 <TableBody>

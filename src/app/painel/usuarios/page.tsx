@@ -38,7 +38,7 @@ import {
 } from 'react-icons/fa';
 import { Input } from "@/components/ui/input";
 import { fonts } from "@/utils/fonts";
-import { deleteUser, validateData } from "@/services/users-service";
+import { deleteUser, validateData } from "@/services/users-services";
 import { createFilterLink } from "@/utils/filters";
 
 const beltDictionary: Record<string, string> = {
@@ -105,11 +105,11 @@ export default async function UsersPage({
                 className="w-full bg-card p-4 rounded-lg border"
             >
                 <AccordionItem value="teste" className="boder-none">
-                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 transition-colors rounded-lg data-[state=open]:rounded-b-none">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline transition-colors rounded-lg data-[state=open]:rounded-b-none cursor-pointer">
                         <h2 className="text-xl font-bold text-gray-800">Filtros de Busca</h2>
                     </AccordionTrigger>
                     <AccordionContent>
-                        <form method="GET" action="/painel/usuarios" className="bg-white rounded-lg space-y-6">
+                        <form method="GET" action="/painel/usuarios" className="bg-white rounded-lg space-y-6 m-2">
 
                             {(() => {
                                 const currentType = params.type || 'todos';
@@ -117,8 +117,7 @@ export default async function UsersPage({
 
                                 return (
                                     <>
-                                        <input type="hidden" name="type" value={currentType} />
-                                        <input type="hidden" name="genre" value={currentGenre} />
+
 
                                         <div className="flex flex-wrap items-center justify-between w-full gap-4">
                                             <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 w-fit">
@@ -155,7 +154,7 @@ export default async function UsersPage({
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Nome Completo</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2 mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="name" defaultValue={params.name || ""} placeholder="Digite o nome..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -163,7 +162,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">E-mail</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2 mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="email" defaultValue={params.email || ""} placeholder="Digite o e-mail..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -171,7 +170,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Telefone Pessoal</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="personalPhone" defaultValue={params.personalPhone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -179,7 +178,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Telefone de Emergência</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="emergencyPhone" defaultValue={params.emergencyPhone || ""} placeholder="Digite o telefone..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -188,7 +187,7 @@ export default async function UsersPage({
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa</label>
                                     <Select defaultValue={params.belt || "todas"} name="belt">
-                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
+                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px] mt-2">
                                             <SelectValue placeholder="Selecione a faixa" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
@@ -269,7 +268,7 @@ export default async function UsersPage({
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Grau</label>
                                     <Select defaultValue={params.stripe || "todos"} name="stripe">
-                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
+                                        <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px] mt-2">
                                             <SelectValue placeholder="Selecione o grau" />
                                         </SelectTrigger>
                                         <SelectContent className={fonts.oswald.className}>
@@ -288,7 +287,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Data de Nascimento</label>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 mt-2">
                                         <Input
                                             name="day"
                                             defaultValue={params.day || ""}
@@ -312,7 +311,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Peso</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="weight" defaultValue={params.weight || ""} placeholder="Digite o peso..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -320,7 +319,7 @@ export default async function UsersPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Comissão</label>
-                                    <div className="relative w-full">
+                                    <div className="relative w-full mt-2">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         <Input name="commission" defaultValue={params.commission || ""} placeholder="Digite a comissão..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
@@ -331,7 +330,7 @@ export default async function UsersPage({
                                 <Button variant="secondary" asChild className="bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 px-6 font-semibold">
                                     <a href="/painel/usuarios" className="!no-underline">Limpar</a>
                                 </Button>
-                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold">
+                                <Button type="submit" className="bg-black hover:bg-[#333] text-white h-10 px-6 font-semibold cursor-pointer">
                                     Filtrar usuários
                                 </Button>
                             </div>
@@ -360,9 +359,19 @@ export default async function UsersPage({
                                         <HoverCardTrigger className="truncate cursor-help font-bold block">
                                             {user.name}
                                         </HoverCardTrigger>
-                                        <HoverCardContent className="w-80">
+                                        <HoverCardContent className="w-80 h-auto">
                                             <h1 className="font-bold">Nome Completo: </h1>
                                             <p>{user.name}</p>
+                                            <h2 className="font-bold">Peso: </h2>
+                                            <p>{parseFloat(user.weight)}</p>
+                                            <h1 className="font-bold">Nascimento: </h1>
+                                            <p>{new Date(user.birth_date).toLocaleDateString('pt-BR')}</p>
+                                            <h1 className="font-bold">Faixa: </h1>
+                                            <p>{user.student?.belt || user.instructor?.belt}</p>
+                                            <h1 className="font-bold">Grau: </h1>
+                                            <p>{user.student?.stripe || user.instructor?.stripe}</p>
+                                            <h1 className="font-bold">Telefone de Emergência: </h1>
+                                            <p>{user.emergency_phone}</p>
                                         </HoverCardContent>
                                     </HoverCard>
                                 </TableCell>
@@ -396,10 +405,16 @@ export default async function UsersPage({
                                 <TableCell className="flex justify-end items-center gap-2 py-4">
 
                                     <Button
+                                        asChild
                                         variant="outline"
                                         className="h-9 px-4 text-[15px] font-medium text-black hover:bg-red-50 hover:border-red-500 flex items-center gap-2"
                                     >
-                                        <FaEdit /> Editar
+                                        <Link
+                                            href={`/painel/usuarios/${user.id}/atualizar`}
+                                        >
+                                            <FaEdit /> Editar
+                                        </Link>
+                                        
                                     </Button>
 
                                     <ButtonDelete

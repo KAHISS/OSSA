@@ -48,7 +48,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className={`text-gray-400 text-[1.3rem] ${fonts.anton.className} `}>Dashboard</SidebarGroupLabel>
           <SidebarMenu className="mt-2 text-center">
             <SidebarMenuButton className="text-white text-lg font-bold bg-zinc-900 hover:bg-red-500 transition-colors duration-300 hover:text-white font-mono h-10 flex items-center justify-between cursor-pointer" variant={"outline"}>
-              <Link href="/painel/dashboard" className={`text-center ${fonts.anton.className}`}>Visão Geral</Link>
+              <Link href="/painel/dashboard" className={`${fonts.anton.className} w-full`}>Visão Geral</Link>
               <div className="w-10 h-10 bg-zinc-900 ml-8">
                 <div className="w-2 h-10 bg-white ml-5"></div>
               </div>
@@ -64,7 +64,7 @@ export function AppSidebar() {
                 className="text-white text-lg font-bold bg-zinc-900 hover:bg-red-500 transition-colors duration-300 hover:text-white font-mono h-10 flex items-center justify-between cursor-pointer"
                 variant={"outline"}
               >
-                <Link href={`${module.href}`} className={`text-center ${fonts.anton.className}`}>{module.name}</Link>
+                <Link href={`${module.href}`} className={`${fonts.anton.className} w-full`}>{module.name}</Link>
                 <div className="w-10 h-10 bg-zinc-900 ml-8">
                   <div className="w-2 h-10 bg-white ml-5"></div>
                 </div>
