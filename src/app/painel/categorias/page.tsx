@@ -42,6 +42,7 @@ import { Input } from "@/components/ui/input";
 import { fonts } from "@/utils/fonts";
 import { createFilterLink } from "@/utils/filters";
 import { deleteCategory, validateData } from "@/services/categories-services";
+import { prisma } from "@/lib/prisma";
 
 
 export default async function CategoriesPage({
@@ -50,18 +51,29 @@ export default async function CategoriesPage({
     searchParams: Promise<{
         name?: string;
         description?: string;
-        start_age_group?: string;
-        finis_age_group?: string;
-        start_weight_range?: string;
-        finish_weight_range?: string;
+        age_group?: string;
+        weight_range?: string;
     }>
 }) {
 
     // data
     const params: any = await searchParams;
-    const {query, categories}: any = await validateData(params)
-    console.log(categories, "fdgfgdfgdfgdfgdg")
-
+    const categories: any = await validateData(params)
+    const age_groups: any = await prisma.category.findMany({
+        select: {
+            id: true,
+            age_group: true
+        },
+        distinct: ['age_group']
+    });
+    const weight_ranges: any = await prisma.category.findMany({
+        select: {
+            id: true,
+            weight_range: true
+        },
+        distinct: ['weight_range']
+    });
+    
     // interface
     const columns = ["Nome", "Descrição", "Faixa etária", "Faixa de peso", "Ações"]
 
@@ -98,7 +110,7 @@ export default async function CategoriesPage({
                                     <label className="text-sm font-semibold text-gray-700">Nome da categoria</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="name" defaultValue={query.name?.startsWith} placeholder="Digite o name..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="name" defaultValue={params.name} placeholder="Digite o name..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
@@ -106,13 +118,13 @@ export default async function CategoriesPage({
                                     <label className="text-sm font-semibold text-gray-700">Descrição</label>
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                        <Input name="email" defaultValue={query.description?.contains} placeholder="Digite a descrição..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
+                                        <Input name="description" defaultValue={params.description} placeholder="Digite a descrição..." className="pl-10 w-full h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa etária</label>
-                                    <Select defaultValue={query.age_group?.contains} name="belt">
+                                    <Select defaultValue={params.age_group} name="age_group">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione a faixa etária" />
                                         </SelectTrigger>
@@ -121,7 +133,7 @@ export default async function CategoriesPage({
                                                 <SelectLabel>Faixas etárias</SelectLabel>
                                                 <SelectItem value="todas"><span className="ml-6">Todas as Faixas Etárias</span></SelectItem>
                                                 {
-                                                    categories.map((category: any) => (
+                                                    age_groups.map((category: any) => (
                                                         <SelectItem value={category.age_group} key={category.id}>
                                                                 <span>{category.age_group}</span>
                                                         </SelectItem>
@@ -134,7 +146,7 @@ export default async function CategoriesPage({
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Faixa de Peso</label>
-                                    <Select defaultValue={query.weight_range?.contains} name="stripe">
+                                    <Select defaultValue={params.weight_range} name="weight_range">
                                         <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
                                             <SelectValue placeholder="Selecione a faixa de peso"/>
                                         </SelectTrigger>
@@ -143,7 +155,7 @@ export default async function CategoriesPage({
                                                 <SelectLabel>Faixas de Peso</SelectLabel>
                                                 <SelectItem value="todas"><span className="ml-6">Todas as Faixas de Peso</span></SelectItem>
                                                 {
-                                                    categories.map((category: any) => (
+                                                    weight_ranges.map((category: any) => (
                                                         <SelectItem value={category.weight_range} key={category.id}>
                                                                 <span>{category.weight_range}</span>
                                                         </SelectItem>
@@ -156,10 +168,10 @@ export default async function CategoriesPage({
                             </div>
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                                 <Button variant="secondary" asChild className="bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 px-6 font-semibold">
-                                    <Link href="/painel/usuarios">Limpar</Link>
+                                    <Link href="/painel/categorias" className="no-underline">Limpar</Link>
                                 </Button>
-                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold">
-                                    Filtrar usuários
+                                <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white h-10 px-6 font-semibold">
+                                    Filtrar Categorias
                                 </Button>
                             </div>
                         </form>
@@ -200,6 +212,7 @@ export default async function CategoriesPage({
                                     <Button
                                         variant="outline"
                                         className="h-9 px-4 text-[15px] font-medium text-black hover:bg-red-50 hover:border-red-500 flex items-center gap-2"
+                                        asChild
                                     >
                                         <Link href={`/painel/categorias/${category.id}/atualizar`} className="flex items-center gap-2">
                                             <button className="btn btn-warning">Editar</button>

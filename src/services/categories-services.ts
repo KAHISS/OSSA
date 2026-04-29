@@ -88,8 +88,8 @@ export async function validateData(data: any) {
 
     const searchName = data.name || '';
     const searchDescription = data.description || '';
-    const searchAgeGroup = data.age_group || '';
-    const searchWeightRange = data.weight_range || '';
+    const searchAgeGroup = data.age_group != "todas" ? data.age_group : '';
+    const searchWeightRange = data.weight_range != "todas" ? data.weight_range : '';
 
     const query: any = {};
     if (searchName) query.name = { startsWith: searchName, mode: 'insensitive' };
@@ -102,5 +102,5 @@ export async function validateData(data: any) {
         orderBy: { createdAt: 'desc' }
     });
 
-    return {query, categories}
+    return categories
 }
