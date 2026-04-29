@@ -77,7 +77,7 @@ export default async function UsersPage({
     // data
     const params: any = await searchParams;
     const { query, users }: any = await validateData(params)
-    console.log(query.name)
+    console.log(query)
 
     // interface
     const columns = ["Usuario", "Email", "Sexo", "Telefone", "Tipo", "Faixa", "Grau", "Comissão", "Ações"]
@@ -347,6 +347,7 @@ export default async function UsersPage({
                         <TableHead>Sexo</TableHead>
                         <TableHead>Telefone</TableHead>
                         <TableHead>Tipo</TableHead>
+                        <TableHead>Faixa</TableHead>
                         <TableHead className="text-right">Ação</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -379,6 +380,8 @@ export default async function UsersPage({
                                             ? 'Instrutor'
                                             : 'Administrador'}
                                 </TableCell>
+
+                                <TableCell>{user.belt !== '' ? beltDictionary[user.belt] : '-'}</TableCell>
 
                                 <TableCell className="flex justify-end items-center gap-2 py-4">
 

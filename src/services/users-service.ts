@@ -30,54 +30,50 @@ export async function validateData(data: any) {
 
     const searchName = data.name || '';
     const searchEmail = data.email || '';
+    const searchGenre = data.genre || '';
     const searchPersonalPhone = data.personalPhone || '';
     const searchEmergencyPhone = data.emergencyPhone || '';
     const searchDay = data.day || '';
     const searchMonth = data.month || '';
     const searchYear = data.year || '';
     const searchWeight = data.weight || '';
+    const searchType = data.type || '';
     const searchCommission = data.commission || '';
     const searchBelt = data.belt || 'todas';
     const searchStripe = data.stripe || 'todos';
 
     const query: any = {};
-
-    if (["Student", "Instructor", "Admin"].includes(String(data.type))) {
-        query.type = data.type;
+    
+    if (searchGenre && searchGenre !== 'todos') {
+        query.genre = searchGenre;
     }
 
-    if (data.genre) {
-        query.genre = data.genre;
+    if (searchType && searchType !== 'todos') {
+        query.type = searchType;
     }
 
-    if (searchName) {
-        query.name = { startsWith: searchName, mode: 'insensitive' };
+    if (searchName.trim() !== '') {
+        query.name = { contains: searchName.trim(), mode: 'insensitive' };
+    }
+    if (searchEmail.trim() !== '') {
+        query.email = { contains: searchEmail.trim(), mode: 'insensitive' };
+    }
+    if (searchPersonalPhone.trim() !== '') {
+        query.phone = { contains: searchPersonalPhone.trim() }; 
+    }
+    if (searchEmergencyPhone.trim() !== '') {
+        query.emergency_phone = { contains: searchEmergencyPhone.trim() };
     }
 
-    if (searchEmail) {
-        query.email = { contains: searchEmail, mode: 'insensitive' };
-    }
-
-    if (searchPersonalPhone) {
-        query.phone = { contains: searchPersonalPhone };
-    }
-
-    if (searchEmergencyPhone) {
-        query.emergency_phone = { contains: searchEmergencyPhone };
-    }
-
-    if (searchWeight) {
+    if (searchWeight.trim() !== '') {
         query.weight = parseFloat(searchWeight);
     }
-
-    if (searchCommission) {
+    if (searchCommission.trim() !== '') {
         query.instructor = {
-            is: {
-                commissionPerStudent: parseFloat(searchCommission)
-            }
+            is: { commissionPerStudent: parseFloat(searchCommission) }
         };
     }
-
+    
     // filtro de faixa e grau
     if (searchBelt !== 'todas' || searchStripe !== 'todos') {
         const conditionBeltStripe: any = {};
