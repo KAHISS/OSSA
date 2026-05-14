@@ -25,6 +25,7 @@ model User {
   instructor      Instructor?
   sessions        Session[]
   student         Student?
+  trainingGroups TrainingGroup[]
 
   @@map("user")
 }
@@ -113,6 +114,41 @@ model Plan {
   price       Decimal  @db.Decimal(6, 2)    
 
   @@map("plan") 
+}
+
+model Branch {
+  id           String       @id @default(cuid())
+  
+  street       String       @db.VarChar(255) 
+  neighborhood String       @db.VarChar(255) 
+  number       Int                            
+  CEP      String       @db.VarChar(8)    
+  city         String       @db.VarChar(255) 
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  classGroups  TrainingGroup[] 
+
+  @@map("branch") 
+}
+
+model TrainingGroup {
+  id              String   @id @default(cuid())
+  studentCapacity Int      @map("student_count") @db.SmallInt 
+
+  branchId        String   @map("branch_id")
+  branch          Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  instructorId    String   @map("instructor_id")
+  instructor      User     @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([branchId])
+  @@index([instructorId])
+  @@map("training_group") 
 }
 
 enum UserType {
