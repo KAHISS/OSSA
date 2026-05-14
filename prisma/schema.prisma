@@ -105,6 +105,16 @@ model Category {
   @@map("category")
 }
 
+model Plan {
+  id          String   @id @default(cuid()) 
+  title       String   @db.VarChar(255)
+  period      String   @db.VarChar(255)
+  description String?  @db.Text             
+  price       Decimal  @db.Decimal(6, 2)    
+
+  @@map("plan") 
+}
+
 enum UserType {
   Student
   Instructor
