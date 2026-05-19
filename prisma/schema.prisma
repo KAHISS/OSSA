@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String          @id @default(cuid())
+  name            String
+  genre           String
+  email           String          @unique
+  emailVerified   Boolean         @default(false)
+  image           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  birth_date      DateTime
+  emergency_phone String
+  phone           String
+  type            UserType
+  weight          Decimal         @db.Decimal(5, 2)
+  accounts        Account[]
+  instructor      Instructor?
+  sessions        Session[]
+  student         Student?
+  trainingGroups  TrainingGroup[]
+  enrollments     Enrollment[]
+
+  @@map("user")
+}
+
+model Student {
+  id     String @id
+  belt   Belt
+  stripe Int
+  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("student")
+}
+
+model Instructor {
+  id                   String  @id
+  belt                 Belt
+  stripe               Int
+  commissionPerStudent Decimal @db.Decimal(6, 2)
+  user                 User    @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("instructor")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Category {
+  id           String  @id @default(cuid())
+  age_group    String  @db.VarChar(30)
+  description  String? @db.VarChar(1255)
+  name         String
+  weight_range String  @db.VarChar(30)
+
+  @@map("category")
+}
+
+model Plan {
+  id          String  @id @default(cuid())
+  title       String  @db.VarChar(255)
+  period      String  @db.VarChar(255)
+  description String? @db.Text
+  price       Decimal @db.Decimal(6, 2)
+
+  @@map("plan")
+}
+
+model Branch {
+  id String @id @default(cuid())
+
+  street       String @db.VarChar(255)
+  neighborhood String @db.VarChar(255)
+  number       Int
+  CEP          String @db.VarChar(8)
+  city         String @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  classGroups TrainingGroup[]
+
+  @@map("branch")
+}
+
+model TrainingGroup {
+  id              String @id @default(cuid())
+  studentCapacity Int    @map("student_count") @db.SmallInt
+
+  branchId String @map("branch_id")
+  branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  instructorId String @map("instructor_id")
+  instructor   User   @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  schedules   Schedule[]
+  enrollments Enrollment[]
+
+  @@index([branchId])
+  @@index([instructorId])
+  @@map("training_group")
+}
+
+model Schedule {
+  id String @id @default(cuid())
+
+  trainingGroupId String        @map("training_group_id")
+  trainingGroup   TrainingGroup @relation(fields: [trainingGroupId], references: [id], onDelete: Cascade)
+
+  dayOfWeek DayOfWeek @map("day_of_week")
+  startTime DateTime  @db.Time
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrollments Enrollment[]
+
+  @@index([trainingGroupId])
+  @@map("schedule")
+}
+
+model Enrollment {
+  id String @id @default(cuid())
+
+  enrollmentDate DateTime @default(now()) @map("enrollment_date") // data_matricula
+
+  trainingGroupId String        @map("training_group_id")
+  trainingGroup   TrainingGroup @relation(fields: [trainingGroupId], references: [id], onDelete: Cascade)
+
+  studentId String @map("student_id")
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  scheduleId String   @map("schedule_id")
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, trainingGroupId, scheduleId])
+  @@index([trainingGroupId])
+  @@index([studentId])
+  @@index([scheduleId])
+  @@map("enrollment")
+}
+
+enum UserType {
+  Student
+  Instructor
+  Admin
+}
+
+enum Belt {
+  WHITE
+  GRAY
+  YELLOW
+  ORANGE
+  GREEN
+  BLUE
+  PURPLE
+  BROWN
+  BLACK
+  CORAL
+  RED
+}
+
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
