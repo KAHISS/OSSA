@@ -58,3 +58,24 @@ export async function PUT(
         );
     }
 }
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+
+        await prisma.enrollment.delete({
+            where: { id: id },
+        });
+
+        return NextResponse.json({ message: 'Matrícula removida com sucesso' });
+    } catch (error) {
+        console.error('Erro ao remover matrícula:', error);
+        return NextResponse.json(
+            { error: 'Erro ao remover matrícula' },
+            { status: 500 }
+        );
+    }
+}
