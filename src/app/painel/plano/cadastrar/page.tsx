@@ -8,7 +8,8 @@ import {
     FaArrowLeft, 
     FaTag, 
     FaEdit,
-    FaRibbon
+    FaRibbon,
+    FaGem
 } from 'react-icons/fa';
 import Link from "next/link";
 import { createPlan } from "@/services/plan-services";
@@ -68,7 +69,7 @@ export default function CreatePlanPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h1 className={`text-4xl md:text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
-                    <FaTh className="text-red-700 text-3xl md:text-5xl" />
+                    <FaGem className="text-red-700 text-3xl md:text-5xl" />
                     Novo Plano
                 </h1>
                 <Button variant="outline" asChild className="w-full sm:w-auto h-10 md:h-11 px-6 text-lg md:text-xl font-semibold border-zinc-900 text-zinc-900">
@@ -81,7 +82,7 @@ export default function CreatePlanPage() {
             <form ref={formRef} action={formAction} className="space-y-4">
                 <div>
                     <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                        <FaTh className="text-red-700" /> Nome do Plano
+                        <FaGem className="text-red-700" /> Nome do Plano
                     </label>
                     <Input name="name" required placeholder="Ex: Plano Básico" />
                 </div>

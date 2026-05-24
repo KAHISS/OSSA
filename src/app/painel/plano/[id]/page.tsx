@@ -9,7 +9,8 @@ import {
     FaArrowLeft, 
     FaTag, 
     FaEdit,
-    FaRibbon
+    FaRibbon,
+    FaGem
 } from 'react-icons/fa';
 import Link from "next/link";
 import { updatePlan } from "@/services/plan-services";
@@ -125,7 +126,7 @@ export default function EditPlanPage() {
             {/* Header Responsivo */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h1 className={`text-4xl md:text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
-                    <FaEdit className="text-red-700 text-3xl md:text-5xl" />
+                    <FaGem className="text-red-700 text-3xl md:text-5xl" />
                     Editar Plano
                 </h1>
 
@@ -143,7 +144,7 @@ export default function EditPlanPage() {
                     {/* Título do Plano */}
                     <div className="space-y-2">
                         <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                            <FaTh className="text-red-700" /> Título
+                            <FaGem className="text-red-700" /> Título
                         </label>
                         <Input 
                             name="title" 
