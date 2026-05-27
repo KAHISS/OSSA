@@ -175,7 +175,8 @@ model Schedule {
 model Enrollment {
   id String @id @default(cuid())
 
-  enrollmentDate DateTime @default(now()) @map("enrollment_date") // data_matricula
+  enrollmentDate DateTime @default(now()) @map("enrollment_date")
+  status         EnrollmentStatus @default(ACTIVE)
 
   trainingGroupId String        @map("training_group_id")
   trainingGroup   TrainingGroup @relation(fields: [trainingGroupId], references: [id], onDelete: Cascade)
@@ -191,6 +192,11 @@ model Enrollment {
   @@index([studentId])
   @@index([scheduleId])
   @@map("enrollment")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  INACTIVE
 }
 
 enum UserType {
