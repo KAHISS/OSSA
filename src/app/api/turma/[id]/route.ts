@@ -69,26 +69,12 @@ export async function PUT(
     }
 
     // Validações
-    if (data.studentCapacity !== undefined && data.studentCapacity <= 0) {
-      return NextResponse.json(
-        { error: 'A capacidade de alunos deve ser maior que 0' },
-        { status: 400 }
-      );
-    }
-
-    // Verifica se a branch existe (se foi informada)
-    if (data.branchId) {
-      const branch = await prisma.branch.findUnique({
-        where: { id: data.branchId }
-      });
-
-      if (!branch) {
-        return NextResponse.json(
-          { error: 'Filial não encontrada' },
-          { status: 404 }
-        );
-      }
-    }
+    //if (data.studentCapacity !== undefined && data.studentCapacity <= 0) {
+    //  return NextResponse.json(
+    //    { error: 'A capacidade de alunos deve ser maior que 0' },
+    //    { status: 400 }
+    //  );
+    //}
 
     // Verifica se o instrutor existe e é do tipo Instructor (se foi informado)
     if (data.instructorId) {
@@ -116,7 +102,6 @@ export async function PUT(
       where: { id },
       data: {
         ...(data.studentCapacity !== undefined && { studentCapacity: data.studentCapacity }),
-        ...(data.branchId && { branchId: data.branchId }),
         ...(data.instructorId && { instructorId: data.instructorId })
       },
       include: {

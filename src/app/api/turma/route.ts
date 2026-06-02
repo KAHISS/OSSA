@@ -7,6 +7,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 // GET -> lista turmas
 export async function GET() {
   try {
@@ -33,9 +37,9 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    if (!data.studentCapacity || !data.branchId || !data.instructorId) {
+    if (!data.studentCapacity || !data.instructorId) {
       return NextResponse.json(
-        { error: 'Campos obrigatórios faltando: studentCapacity, branchId, instructorId' },
+        { error: 'Campos obrigatórios faltando: studentCapacity, instructorId' },
         { status: 400 }
       );
     }
@@ -44,18 +48,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'A capacidade de alunos deve ser maior que 0' },
         { status: 400 }
-      );
-    }
-
-    // Verifica se a branch existe
-    const branch = await prisma.branch.findUnique({
-      where: { id: data.branchId }
-    });
-
-    if (!branch) {
-      return NextResponse.json(
-        { error: 'Filial não encontrada' },
-        { status: 404 }
       );
     }
 
@@ -79,23 +71,115 @@ export async function POST(request: Request) {
       );
     }
 
-    const trainingGroup = await prisma.trainingGroup.create({
-      data: {
-        studentCapacity: data.studentCapacity,
-        branchId: data.branchId,
-        instructorId: data.instructorId
-      },
-      include: {
-        branch: true,
-        instructor: true
-      }
-    });
+  const trainingGroup = await prisma.trainingGroup.create({
+    data: {
+      studentCapacity: Number(data.studentCapacity),
+      instructorId: data.instructorId,
+      ...(data.branchId && { branchId: data.branchId })
+    }
+  });
 
     return NextResponse.json(trainingGroup, { status: 201 });
   } catch (error) {
     console.error("Erro ao criar turma:", error);
     return NextResponse.json(
       { error: 'Erro ao criar turma' },
+      { status: 500 }
+    );
+  }
+}
+
+// 1. PUT -> Atualizar uma turma existente
+export async function PUT(request: Request, { params }: RouteParams) {
+  try {
+    const { id } = await params;
+    const data = await request.json();
+
+    // Verifica se a turma existe antes de atualizar
+    const existingGroup = await prisma.trainingGroup.findUnique({
+      where: { id },
+    });
+
+    if (!existingGroup) {
+      return NextResponse.json(
+        { error: 'Turma não encontrada' },
+        { status: 404 }
+      );
+    }
+
+    // Se o instrutor for alterado, valida se ele existe e é instrutor
+    if (data.instructorId && data.instructorId !== existingGroup.instructorId) {
+      const instructor = await prisma.user.findUnique({
+        where: { id: data.instructorId },
+        include: { instructor: true }
+      });
+
+      if (!instructor || !instructor.instructor) {
+        return NextResponse.json(
+          { error: 'O novo usuário selecionado não é um instrutor válido' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Valida capacidade se enviada
+    if (data.studentCapacity !== undefined && data.studentCapacity <= 0) {
+      return NextResponse.json(
+        { error: 'A capacidade de alunos deve ser maior que 0' },
+        { status: 400 }
+      );
+    }
+
+    // Executa a atualização no banco de dados
+    const updatedGroup = await prisma.trainingGroup.update({
+      where: { id },
+      data: {
+        ...(data.studentCapacity !== undefined && { studentCapacity: Number(data.studentCapacity) }),
+        ...(data.instructorId && { instructorId: data.instructorId }),
+        ...(data.branchId !== undefined && { branchId: data.branchId || null }), // permite remover a filial enviando null
+      },
+    });
+
+    return NextResponse.json(updatedGroup, { status: 200 });
+  } catch (error) {
+    console.error('Erro ao atualizar turma:', error);
+    return NextResponse.json(
+      { error: 'Erro ao atualizar turma' },
+      { status: 500 }
+    );
+  }
+}
+
+// 2. DELETE -> Deletar uma turma
+export async function DELETE(request: Request, { params }: RouteParams) {
+  try {
+    const { id } = await params;
+
+    // Verifica se a turma existe
+    const existingGroup = await prisma.trainingGroup.findUnique({
+      where: { id },
+    });
+
+    if (!existingGroup) {
+      return NextResponse.json(
+        { error: 'Turma não encontrada' },
+        { status: 404 }
+      );
+    }
+
+    // Deleta do banco de dados
+    await prisma.trainingGroup.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: 'Turma deletada com sucesso' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Erro ao deletar turma:', error);
+    return NextResponse.json(
+      { error: 'Erro ao deletar turma' },
       { status: 500 }
     );
   }
