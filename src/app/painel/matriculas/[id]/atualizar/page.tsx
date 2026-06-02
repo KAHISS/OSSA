@@ -44,6 +44,8 @@ export default function UpdateEnrollmentPage() {
         status: "ACTIVE",
     });
 
+    const [students, setStudents] = useState<{ id: string; name: string }[]>([]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -146,15 +148,25 @@ export default function UpdateEnrollmentPage() {
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <FaGraduationCap className="text-red-700" /> Aluno
                             </label>
-                            <Select name="studentId" required defaultValue={formValues.studentId}>
+                            <Select name="studentId" required defaultValue={formValues?.studentId}>
                                 <SelectTrigger className="w-full h-12 bg-white border-gray-300 focus:ring-zinc-900 text-lg">
                                     <SelectValue placeholder="Selecione o aluno" />
                                 </SelectTrigger>
                                 <SelectContent className={fonts.oswald.className}>
                                     <SelectGroup>
-                                        <SelectLabel>Alunos</SelectLabel>
-                                        <SelectItem value="id_exemplo_aluno_1">João Souza</SelectItem>
-                                        <SelectItem value="id_exemplo_aluno_2">Maria Pereira</SelectItem>
+                                        <SelectLabel>Alunos Ativos</SelectLabel>
+
+                                        {/* Renderização Dinâmica */}
+                                        {students.length === 0 ? (
+                                            <SelectItem value="none" disabled>Nenhum aluno encontrado</SelectItem>
+                                        ) : (
+                                            students.map((student) => (
+                                                <SelectItem key={student.id} value={student.id}>
+                                                    {student.name}
+                                                </SelectItem>
+                                            ))
+                                        )}
+
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>

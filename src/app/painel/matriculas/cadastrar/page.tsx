@@ -2,13 +2,13 @@
 
 import { fonts } from "@/utils/fonts";
 import { Button } from "@/components/ui/button";
-import { 
-    FaUserCheck, 
-    FaArrowLeft, 
-    FaGraduationCap, 
-    FaLayerGroup, 
-    FaClock, 
-    FaToggleOn 
+import {
+    FaUserCheck,
+    FaArrowLeft,
+    FaGraduationCap,
+    FaLayerGroup,
+    FaClock,
+    FaToggleOn
 } from 'react-icons/fa';
 import {
     Select,
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { createEnrollment, FormState } from "@/services/enrollments-services";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Confirmation from "@/components/ui/confirmation";
@@ -34,7 +34,9 @@ export default function CreateEnrollmentPage() {
         message: "",
         status: ""
     } as FormState);
-    
+
+    const [students, setStudents] = useState<{ id: string; name: string }[]>([]);
+
     const handleConfirm = () => {
         formRef.current?.requestSubmit();
     };
@@ -49,6 +51,25 @@ export default function CreateEnrollmentPage() {
             }
         }
     }, [state, router]);
+
+    useEffect(() => {
+        async function loadStudents() {
+            try {
+                const response = await fetch("/api/usuarios");
+                if (!response.ok) throw new Error("Erro ao carregar alunos");
+                
+                const data = await response.json();
+                
+                const onlyStudents = data.filter((user: any) => user.type === "Student");
+                
+                setStudents(onlyStudents);
+            } catch (error) {
+                console.error("Erro ao buscar alunos:", error);
+            }
+        }
+    
+        loadStudents();
+    }, []);
 
     return (
         <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
@@ -66,9 +87,9 @@ export default function CreateEnrollmentPage() {
             </div>
             <div className="bg-white rounded-lg border p-4 md:p-8 shadow-sm">
                 <form ref={formRef} action={formAction} className="space-y-6 md:space-y-8">
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                        
+
                         <div className="space-y-2">
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <FaGraduationCap className="text-red-700" /> Aluno
@@ -80,8 +101,18 @@ export default function CreateEnrollmentPage() {
                                 <SelectContent className={fonts.oswald.className}>
                                     <SelectGroup>
                                         <SelectLabel>Alunos Ativos</SelectLabel>
-                                        <SelectItem value="id_exemplo_aluno_1">João Souza</SelectItem>
-                                        <SelectItem value="id_exemplo_aluno_2">Maria Pereira</SelectItem>
+
+                                        {/* Renderização Dinâmica */}
+                                        {students.length === 0 ? (
+                                            <SelectItem value="none" disabled>Nenhum aluno encontrado</SelectItem>
+                                        ) : (
+                                            students.map((student) => (
+                                                <SelectItem key={student.id} value={student.id}>
+                                                    {student.name}
+                                                </SelectItem>
+                                            ))
+                                        )}
+
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -127,9 +158,9 @@ export default function CreateEnrollmentPage() {
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <FaToggleOn className="text-red-700" /> Status da Matrícula
                             </label>
-                            <select 
-                                name="status" 
-                                required 
+                            <select
+                                name="status"
+                                required
                                 defaultValue="ACTIVE"
                                 className="flex h-12 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
                             >
