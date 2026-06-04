@@ -97,7 +97,20 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
             </div>
 
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Capacidade de alunos</label>
+              <label className="text-lg font-semibold text-gray-700">Nome da Turma</label>
+              <Input
+                name="name"
+                type="text"
+                required
+                placeholder="Ex: Turma A"
+                className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-gray-700">Capacidade Máxima de Alunos</label>
               <Input
                 name="studentCapacity"
                 type="number"
@@ -107,11 +120,13 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
                 className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
               />
             </div>
+
+            <div></div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Horário de início</label>
+              <label className="text-lg font-semibold text-gray-700">Horário de Início</label>
               <Input
                 name="startTime"
                 type="time"
@@ -121,7 +136,19 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
             </div>
 
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Dias da semana</label>
+              <label className="text-lg font-semibold text-gray-700">Horário de Fim</label>
+              <Input
+                name="endTime"
+                type="time"
+                required
+                className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-gray-700">Dias da Semana</label>
               <div className="grid grid-cols-2 gap-2 rounded-md border border-gray-300 bg-white p-3">
                 {daysOfWeek.map((day) => (
                   <label key={day.value} className="inline-flex items-center gap-2 text-sm text-gray-700">

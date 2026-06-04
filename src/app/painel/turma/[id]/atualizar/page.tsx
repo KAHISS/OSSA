@@ -25,6 +25,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   // Serialize dates to strings for client props
   const serializedGroup = {
     id: trainingGroup.id,
+    name: trainingGroup.name,
     studentCapacity: trainingGroup.studentCapacity,
     instructorId: trainingGroup.instructorId,
     instructor: trainingGroup.instructor ? { id: trainingGroup.instructor.id, name: trainingGroup.instructor.name } : null,

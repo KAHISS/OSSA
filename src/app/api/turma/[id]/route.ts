@@ -101,6 +101,7 @@ export async function PUT(
     const updated = await prisma.trainingGroup.update({
       where: { id },
       data: {
+        ...(data.name && { name: data.name }),
         ...(data.studentCapacity !== undefined && { studentCapacity: data.studentCapacity }),
         ...(data.instructorId && { instructorId: data.instructorId })
       },

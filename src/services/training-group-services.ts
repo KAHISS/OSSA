@@ -26,12 +26,13 @@ export async function deleteTrainingGroup(formData: FormData) {
 export async function createTrainingGroup(prevState: unknown, formData: FormData) {
     "use server";
 
+    const name = (formData.get("name") as string)?.trim() || "";
     const studentCapacity = parseInt(formData.get("studentCapacity") as string) || 0;
     const instructorId = (formData.get("instructorId") as string)?.trim() || "";
     const startTime = (formData.get("startTime") as string)?.trim() || "";
     const days = formData.getAll("days") as DayOfWeek[];
 
-    if (!studentCapacity || !instructorId || !startTime || !days || days.length === 0) {
+    if (!name || !studentCapacity || !instructorId || !startTime || !days || days.length === 0) {
         return { message: "Todos os campos obrigatórios devem ser preenchidos.", status: "error" };
     }
 
@@ -63,6 +64,7 @@ export async function createTrainingGroup(prevState: unknown, formData: FormData
 
         const trainingGroup = await prisma.trainingGroup.create({
             data: {
+                name,
                 studentCapacity,
                 instructorId,
                 schedules: {
@@ -90,10 +92,11 @@ export async function updateTrainingGroup(prevState: unknown, formData: FormData
     "use server";
 
     const id = formData.get("id") as string;
+    const name = (formData.get("name") as string)?.trim() || "";
     const studentCapacity = parseInt(formData.get("studentCapacity") as string) || 0;
     const instructorId = (formData.get("instructorId") as string)?.trim() || "";
 
-    if (!id || !studentCapacity || !instructorId) {
+    if (!id || !name || !studentCapacity || !instructorId) {
         return { message: "Todos os campos obrigatórios devem ser preenchidos.", status: "error" };
     }
 
@@ -128,6 +131,7 @@ export async function updateTrainingGroup(prevState: unknown, formData: FormData
         const updated = await prisma.trainingGroup.update({
             where: { id },
             data: {
+                name,
                 studentCapacity,
                 instructorId
             },

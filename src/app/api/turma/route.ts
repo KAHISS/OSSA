@@ -37,9 +37,9 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    if (!data.studentCapacity || !data.instructorId) {
+    if (!data.studentCapacity || !data.instructorId || !data.name) {
       return NextResponse.json(
-        { error: 'Campos obrigatórios faltando: studentCapacity, instructorId' },
+        { error: 'Campos obrigatórios faltando: studentCapacity, instructorId, name' },
         { status: 400 }
       );
     }
@@ -73,6 +73,7 @@ export async function POST(request: Request) {
 
   const trainingGroup = await prisma.trainingGroup.create({
     data: {
+      name: data.name,
       studentCapacity: Number(data.studentCapacity),
       instructorId: data.instructorId,
       ...(data.branchId && { branchId: data.branchId })
@@ -134,6 +135,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const updatedGroup = await prisma.trainingGroup.update({
       where: { id },
       data: {
+        ...(data.name && { name: data.name }),
         ...(data.studentCapacity !== undefined && { studentCapacity: Number(data.studentCapacity) }),
         ...(data.instructorId && { instructorId: data.instructorId }),
         ...(data.branchId !== undefined && { branchId: data.branchId || null }), // permite remover a filial enviando null

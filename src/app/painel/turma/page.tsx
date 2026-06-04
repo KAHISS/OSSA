@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button";
 import { ButtonDelete } from "@/components/ui/ButtonDelete";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import {
     FaSearch,
@@ -30,6 +31,7 @@ export default async function TrainingGroupsPage({
     searchParams
 }: {
     searchParams: Promise<{
+        name?: string;
         instructorId?: string;
     }>
 }) {
@@ -42,7 +44,7 @@ export default async function TrainingGroupsPage({
     ]);
     
     // interface
-    const columns = ["ID Turma", "Instrutor", "Filial", "Capacidade", "Horários", "Ações"]
+    const columns = ["Nome da Turma", "Instrutor", "Filial", "Capacidade", "Horários", "Ações"]
 
     return (
         <div className={`my-6 mx-6 font-thin ${fonts.oswald.className}`}>
@@ -72,7 +74,16 @@ export default async function TrainingGroupsPage({
                     </AccordionTrigger>
                     <AccordionContent>
                         <form method="GET" action="/painel/turma" className="bg-white rounded-lg space-y-6 p-2">
-                            <div className="grid grid-cols-1 gap-6">
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700">Nome da Turma</label>
+                                    <Input
+                                        name="name"
+                                        defaultValue={params.name || ""}
+                                        placeholder="Pesquisar pelo nome"
+                                        className="w-full h-10 bg-white border border-gray-300 rounded-md px-3 focus-visible:ring-zinc-900 text-[16px]"
+                                    />
+                                </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700">Instrutor</label>
                                     <div className="relative w-full mt-2">
@@ -127,7 +138,7 @@ export default async function TrainingGroupsPage({
                         trainingGroups.map((trainingGroup) => (
                             <TableRow key={trainingGroup.id}>
                                 <TableCell className="max-w-[150px] font-bold">
-                                    {trainingGroup.id.substring(0, 8)}...
+                                    {trainingGroup.name}
                                 </TableCell>
 
                                 <TableCell>{trainingGroup.instructor.name}</TableCell>
@@ -137,14 +148,20 @@ export default async function TrainingGroupsPage({
                                 <TableCell>{trainingGroup.studentCapacity} alunos</TableCell>
 
                                 <TableCell>
-                                    <div className="flex items-center gap-1 text-sm">
-                                        <FaClock className="text-red-700" />
-                                        {trainingGroup.schedules.length > 0 ? (
-                                            <span>{trainingGroup.schedules.length} hor{trainingGroup.schedules.length === 1 ? 'ário' : 'ários'}</span>
-                                        ) : (
-                                            <span className="text-gray-400">Sem horários</span>
-                                        )}
-                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        className="h-9 px-4 text-[15px] font-medium text-black hover:bg-blue-50 hover:border-blue-500 flex items-center gap-2"
+                                        asChild
+                                    >
+                                        <Link href={`/painel/turma/${trainingGroup.id}/atualizar`} prefetch={false} className="flex items-center gap-2">
+                                            <FaClock className="text-red-700" />
+                                            {trainingGroup.schedules.length > 0 ? (
+                                                <span>{trainingGroup.schedules.length} hor{trainingGroup.schedules.length === 1 ? 'ário' : 'ários'}</span>
+                                            ) : (
+                                                <span className="text-gray-400">Sem horários</span>
+                                            )}
+                                        </Link>
+                                    </Button>
                                 </TableCell>
 
                                 <TableCell className="flex justify-end items-center gap-2 py-4">

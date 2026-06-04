@@ -137,6 +137,7 @@ model Branch {
 //Grupo de Treinamento/Turma
 model TrainingGroup { 
   id              String @id @default(cuid())
+  name            String @default("")
   studentCapacity Int    @map("student_count") @db.SmallInt  // capacidade máxima de alunos por turma
 
   branchId String? @map("branch_id") //ID da filial. O símbolo ? indica que este campo é opcional (uma turma pode não ter filial vinculada).

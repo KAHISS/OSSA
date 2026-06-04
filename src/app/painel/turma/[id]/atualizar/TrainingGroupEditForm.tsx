@@ -17,6 +17,7 @@ interface Schedule { id: string; dayOfWeek: string; startTime: string }
 interface Props {
   trainingGroup: {
     id: string;
+    name: string;
     studentCapacity: number;
     instructorId: string;
     instructor?: { id: string; name: string } | null;
@@ -30,6 +31,7 @@ export default function TrainingGroupEditForm({ trainingGroup, instructors }: Pr
   const formRef = useRef<HTMLFormElement>(null);
 
   const [state, formAction, isPending] = useActionState(updateTrainingGroup, { message: "", status: "" });
+  const [name, setName] = useState(trainingGroup.name || "");
   const [studentCapacity, setStudentCapacity] = useState(trainingGroup.studentCapacity || 0);
   const [instructorId, setInstructorId] = useState(trainingGroup.instructorId || "");
 
@@ -72,7 +74,7 @@ export default function TrainingGroupEditForm({ trainingGroup, instructors }: Pr
                 onChange={(e) => setInstructorId(e.target.value)}
                 className="w-full h-12 rounded-md border border-gray-300 bg-white px-3 text-lg focus:outline-none focus:ring-2 focus:ring-zinc-900"
               >
-                <option value="">Selecione um instrutor</option>
+                <option value="">Selecione um Instrutor</option>
                 {instructors.map((inst) => (
                   <option key={inst.id} value={inst.id}>{inst.name}</option>
                 ))}
@@ -80,7 +82,21 @@ export default function TrainingGroupEditForm({ trainingGroup, instructors }: Pr
             </div>
 
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Capacidade de alunos</label>
+              <label className="text-lg font-semibold text-gray-700">Nome da Turma</label>
+              <Input
+                name="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-gray-700">Capacidade Máxima de Alunos</label>
               <Input
                 name="studentCapacity"
                 type="number"
@@ -109,7 +125,7 @@ export default function TrainingGroupEditForm({ trainingGroup, instructors }: Pr
         </form>
 
         <div className="border-t pt-6">
-          <ScheduleManager trainingGroupId={trainingGroup.id} schedules={trainingGroup.schedules} />
+          <ScheduleManager trainingGroupId={trainingGroup.id} trainingGroupName={trainingGroup.name} schedules={trainingGroup.schedules} />
         </div>
       </div>
     </div>

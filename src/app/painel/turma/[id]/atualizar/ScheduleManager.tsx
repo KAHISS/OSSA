@@ -15,6 +15,7 @@ interface Schedule {
 
 interface ScheduleManagerProps {
   trainingGroupId: string;
+  trainingGroupName: string;
   schedules: Schedule[];
 }
 
@@ -28,7 +29,7 @@ const daysOfWeek = [
   { value: "SUNDAY", label: "Domingo" },
 ];
 
-export default function ScheduleManager({ trainingGroupId, schedules: initialSchedules }: ScheduleManagerProps) {
+export default function ScheduleManager({ trainingGroupId, trainingGroupName, schedules: initialSchedules }: ScheduleManagerProps) {
   const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules);
   const [newDay, setNewDay] = useState("");
   const [newTime, setNewTime] = useState("");
@@ -108,7 +109,12 @@ export default function ScheduleManager({ trainingGroupId, schedules: initialSch
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-lg font-semibold text-gray-700">Horários Cadastrados</label>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <p className="text-lg font-semibold text-gray-700">Horários Cadastrados</p>
+            <p className="text-sm text-gray-500">Turma: {trainingGroupName}</p>
+          </div>
+        </div>
         <div className="mt-2 space-y-2">
           {schedules.length > 0 ? (
             schedules.map((schedule) => (
