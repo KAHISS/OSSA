@@ -103,6 +103,7 @@ model Category {
   description  String? @db.VarChar(1255)
   name         String
   weight_range String  @db.VarChar(30)
+  createdAt    DateTime @default(now())
 
   @@map("category")
 }
