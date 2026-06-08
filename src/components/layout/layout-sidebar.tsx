@@ -26,7 +26,17 @@ const modules = [
     id: "categories",
     name: "Categorias",
     href: "/painel/categorias",
-  }
+  },
+  {
+    id: "plano",
+    name: "Planos",
+    href: "/painel/plano",    
+  },
+  {
+    id: "turma",
+    name: "Turma",
+    href: "/painel/turma",
+  },
 ]
 
 export function AppSidebar() {

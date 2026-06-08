@@ -46,6 +46,14 @@ export async function createUser(prevState: any, formData: FormData) {
         return { message: "O campo Comissão deve ser um número válido.", status: "error" };
     }
 
+    const existingUser = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    if (existingUser) {
+        return { message: "Este email já está cadastrado. Use outro email.", status: "error" };
+    }
+
     await prisma.user.create({
         data: {
             name,
@@ -106,6 +114,14 @@ export async function updateUser(prevState: any, formData: FormData) {
     const parsedBirthDate = new Date(birth_date);
     if (Number.isNaN(parsedBirthDate.getTime())) {
         return { message: "Data de nascimento inválida.", status: "error" };
+    }
+
+    const existingEmail = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    if (existingEmail && existingEmail.id !== id) {
+        return { message: "Este email já está cadastrado em outro usuário.", status: "error" };
     }
 
     if (Number.isNaN(weight)) {
