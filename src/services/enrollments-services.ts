@@ -28,59 +28,77 @@ export async function createEnrollment(
 ): Promise<FormState> {
   const studentId = formData.get("studentId") as string;
   const trainingGroupId = formData.get("trainingGroupId") as string;
-  const scheduleId = formData.get("scheduleId") as string;
   const status = formData.get("status") as "ACTIVE" | "INACTIVE"; 
+  
+  // 1. Captura o input oculto contendo o texto JSON dos múltiplos horários
+  const scheduleIdsRaw = formData.get("scheduleIds") as string;
+  
+  // 2. Converte o texto JSON de volta para um Array de IDs do TypeScript
+  let scheduleIds: string[] = [];
+  try {
+    scheduleIds = scheduleIdsRaw ? JSON.parse(scheduleIdsRaw) : [];
+  } catch (e) {
+    return { status: "error", message: "Erro de integridade no formato dos horários." };
+  }
 
-  if (!studentId || !trainingGroupId || !scheduleId) {
+  // 3. CORREÇÃO DA VALIDAÇÃO: Verifica se aluno, turma ou se a lista de horários está vazia
+  if (!studentId || !trainingGroupId || scheduleIds.length === 0) {
     return {
       status: "error",
-      message: "Todos os campos obrigatórios devem ser preenchidos.",
+      message: "Todos os campos obrigatórios devem ser preenchidos. Escolha o aluno, a turma e pelo menos 1 horário.",
     };
   }
 
   try {
-    const existingEnrollment = await prisma.enrollment.findUnique({
-      where: {
-        studentId_trainingGroupId_scheduleId: {
+    let matriculasCriadas = 0;
+
+    // 4. Loop para cadastrar cada horário selecionado
+    for (const scheduleId of scheduleIds) {
+      const existingEnrollment = await prisma.enrollment.findUnique({
+        where: {
+          studentId_trainingGroupId_scheduleId: {
+            studentId,
+            trainingGroupId,
+            scheduleId,
+          },
+        },
+      });
+
+      if (existingEnrollment) continue; // Se já existir, pula para o próximo
+
+      await prisma.enrollment.create({
+        data: {
           studentId,
           trainingGroupId,
           scheduleId,
+          status,
         },
-      },
-    });
-
-    if (existingEnrollment) {
-      return {
-        status: "error",
-        message: "Este aluno já está matriculado nesta turma com este exato horário.",
-      };
+      });
+      matriculasCriadas++;
     }
 
-    await prisma.enrollment.create({
-      data: {
-        studentId,
-        trainingGroupId,
-        scheduleId,
-        status,
-      },
-    });
+    if (matriculasCriadas === 0) {
+      return {
+        status: "error",
+        message: "O aluno já está matriculado em todos os horários selecionados para esta turma.",
+      };
+    }
 
     revalidatePath("/painel/matriculas");
 
     return {
       status: "success",
-      message: "Matrícula realizada com sucesso!",
+      message: `${matriculasCriadas} matrícula(s) realizada(s) com sucesso!`,
     };
 
   } catch (error) {
-    console.error("Erro crítico ao criar matrícula no servidor:", error);
+    console.error("Erro crítico no servidor:", error);
     return {
       status: "error",
       message: "Ocorreu um erro interno no servidor ao processar a matrícula.",
     };
   }
 }
-
 /**
  * Server Action para ATUALIZAÇÃO de uma Matrícula existente
  */
