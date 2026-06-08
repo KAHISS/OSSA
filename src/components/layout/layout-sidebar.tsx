@@ -28,6 +28,16 @@ const modules = [
     href: "/painel/categorias",
   },
   {
+    id: "plano",
+    name: "Planos",
+    href: "/painel/plano",    
+  },
+  {
+    id: "turma",
+    name: "Turma",
+    href: "/painel/turma",
+  },
+  {
     id: "enrollments",
     name: "Matrículas",
     href: "/painel/matriculas",

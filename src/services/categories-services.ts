@@ -99,7 +99,7 @@ export async function validateData(data: any) {
 
     const categories = await prisma.category.findMany({
         where: query,
-        orderBy: { createdAt: 'desc' }
+        orderBy: { id: 'desc' }
     });
 
     return categories
