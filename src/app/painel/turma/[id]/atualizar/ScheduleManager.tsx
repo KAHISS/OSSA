@@ -103,9 +103,6 @@ export default function ScheduleManager({ trainingGroupId, trainingGroupName, sc
     }
   };
 
-  const usedDays = schedules.map((s) => s.dayOfWeek);
-  const availableDays = daysOfWeek.filter((day) => !usedDays.includes(day.value));
-
   return (
     <div className="space-y-4">
       <div>
@@ -145,26 +142,25 @@ export default function ScheduleManager({ trainingGroupId, trainingGroupName, sc
         </div>
       </div>
 
-      {availableDays.length > 0 && (
-        <form onSubmit={handleAddSchedule} className="p-4 rounded border bg-blue-50 space-y-3">
-          <label className="text-lg font-semibold text-gray-700">Adicionar Novo Horário</label>
+      <form onSubmit={handleAddSchedule} className="p-4 rounded border bg-blue-50 space-y-3">
+        <label className="text-lg font-semibold text-gray-700">Adicionar Novo Horário</label>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-600">Dia da Semana</label>
-              <select
-                value={newDay}
-                onChange={(e) => setNewDay(e.target.value)}
-                className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione um dia</option>
-                {availableDays.map((day) => (
-                  <option key={day.value} value={day.value}>
-                    {day.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-gray-600">Dia da Semana</label>
+            <select
+              value={newDay}
+              onChange={(e) => setNewDay(e.target.value)}
+              className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecione um dia</option>
+              {daysOfWeek.map((day) => (
+                <option key={day.value} value={day.value}>
+                  {day.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
             <div className="space-y-1">
               <label className="text-sm font-semibold text-gray-600">Horário</label>
@@ -177,11 +173,10 @@ export default function ScheduleManager({ trainingGroupId, trainingGroupName, sc
             </div>
           </div>
 
-          <Button type="submit" disabled={isLoading} className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
-            <FaPlus /> Adicionar Horário
-          </Button>
-        </form>
-      )}
+        <Button type="submit" disabled={isLoading} className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+          <FaPlus /> Adicionar Horário
+        </Button>
+      </form>
     </div>
   );
 }

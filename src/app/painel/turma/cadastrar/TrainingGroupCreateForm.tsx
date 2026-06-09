@@ -3,12 +3,13 @@
 import { fonts } from "@/utils/fonts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, FormEvent } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createTrainingGroup } from "@/services/training-group-services";
 import Confirmation from "@/components/ui/confirmation";
 import Link from "next/link";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 const daysOfWeek = [
   { value: "MONDAY", label: "Segunda" },
@@ -32,7 +33,9 @@ interface TrainingGroupCreateFormProps {
 export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCreateFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [schedules, setSchedules] = useState<{ dayOfWeek: string; startTime: string }[]>([]);
+  const [newDay, setNewDay] = useState("");
+  const [newTime, setNewTime] = useState("");
   const [state, formAction, isPending] = useActionState(createTrainingGroup, {
     message: "",
     status: "",
@@ -40,6 +43,23 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
 
   const handleConfirm = () => {
     formRef.current?.requestSubmit();
+  };
+
+  const handleAddSchedule = (event: FormEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    if (!newDay || !newTime) {
+      toast.error("Selecione dia e horário.");
+      return;
+    }
+
+    setSchedules((current) => [...current, { dayOfWeek: newDay, startTime: newTime }]);
+    setNewDay("");
+    setNewTime("");
+  };
+
+  const handleRemoveSchedule = (scheduleKey: string) => {
+    setSchedules((current) => current.filter((schedule) => `${schedule.dayOfWeek}-${schedule.startTime}` !== scheduleKey));
   };
 
   useEffect(() => {
@@ -55,12 +75,6 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
       router.push("/painel/turma");
     }
   }, [router, state]);
-
-  const toggleDay = (day: string) => {
-    setSelectedDays((current) =>
-      current.includes(day) ? current.filter((item) => item !== day) : [...current, day]
-    );
-  };
 
   return (
     <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
@@ -125,45 +139,79 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Horário de Início</label>
-              <Input
-                name="startTime"
-                type="time"
-                required
-                className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
-              />
-            </div>
+            <div className="space-y-2 col-span-full">
+              <label className="text-lg font-semibold text-gray-700">Horários da Turma</label>
 
-            <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Horário de Fim</label>
-              <Input
-                name="endTime"
-                type="time"
-                required
-                className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Dias da Semana</label>
-              <div className="grid grid-cols-2 gap-2 rounded-md border border-gray-300 bg-white p-3">
-                {daysOfWeek.map((day) => (
-                  <label key={day.value} className="inline-flex items-center gap-2 text-sm text-gray-700">
-                    <input
-                      name="days"
-                      type="checkbox"
-                      value={day.value}
-                      className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                      onChange={() => toggleDay(day.value)}
-                    />
-                    {day.label}
-                  </label>
-                ))}
+              <div className="space-y-2 mb-3">
+                {schedules.length > 0 ? (
+                  schedules.map((schedule) => (
+                    <div key={`${schedule.dayOfWeek}-${schedule.startTime}`} className="flex items-center justify-between rounded-md border border-gray-300 bg-zinc-50 p-3">
+                      <div>
+                        <div className="font-medium text-gray-700">
+                          {daysOfWeek.find((day) => day.value === schedule.dayOfWeek)?.label || schedule.dayOfWeek}
+                        </div>
+                        <div className="text-sm text-gray-600">{schedule.startTime}</div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleRemoveSchedule(`${schedule.dayOfWeek}-${schedule.startTime}`)}
+                        className="bg-gray-200 text-gray-900 hover:bg-gray-300"
+                      >
+                        <FaTrash /> Remover
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">Adicione ao menos um horário para esta turma.</p>
+                )}
               </div>
-              <p className="text-sm text-gray-500">Selecionados: {selectedDays.length}</p>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3 rounded-md border border-gray-300 bg-white p-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-600">Dia da Semana</label>
+                  <select
+                    value={newDay}
+                    onChange={(event) => setNewDay(event.target.value)}
+                    className="w-full h-12 rounded-md border border-gray-300 bg-white px-3 text-lg focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  >
+                    <option value="">Selecione um dia</option>
+                    {daysOfWeek.map((day) => (
+                      <option key={day.value} value={day.value}>
+                        {day.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-600">Horário</label>
+                  <Input
+                    type="time"
+                    value={newTime}
+                    onChange={(event) => setNewTime(event.target.value)}
+                    className="h-12 bg-white border-gray-300 focus-visible:ring-zinc-900 text-lg"
+                  />
+                </div>
+
+                <div className="flex items-end">
+                  <Button
+                    type="button"
+                    onClick={handleAddSchedule}
+                    className="w-full bg-zinc-900 text-white h-12 px-6 text-lg font-semibold flex items-center justify-center gap-2"
+                  >
+                    <FaPlus /> Adicionar horário
+                  </Button>
+                </div>
+              </div>
+
+              {schedules.map((schedule, index) => (
+                <div key={`hidden-${index}`} className="hidden">
+                  <input type="hidden" name="days" value={schedule.dayOfWeek} />
+                  <input type="hidden" name="startTimes" value={schedule.startTime} />
+                </div>
+              ))}
             </div>
           </div>
 
