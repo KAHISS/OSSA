@@ -196,15 +196,14 @@ export default async function PublicationsPage({
                                         </span>
                                     </p>
                                     
-                                    {/* Validação de Edição Segura */}
+                                    {/* CORRIGIDO: Alinhamento e ícone ajustados com precisão */}
                                     {publication.updatedAt && new Date(publication.updatedAt).getTime() > new Date(publication.createdAt).getTime() && (
-                                        
-                                     <p className="flex items-center gap-2 text-[11px] text-zinc-600 font-bold uppercase tracking-wider pl-4">
-                                        <FaCalendarAlt className="text-zinc-400" />
-                                     <span>
-                                      Editado em: {new Date(publication.updatedAt).toLocaleDateString('pt-BR')}
-                                     </span>
-                                     </p>
+                                        <p className="flex items-center gap-2 text-[11px] text-zinc-600 font-bold uppercase tracking-wider">
+                                            <FaCalendarAlt className="text-zinc-700 text-xs" />
+                                            <span>
+                                                Editado em: {new Date(publication.updatedAt).toLocaleDateString('pt-BR')}
+                                            </span>
+                                        </p>
                                     )}
                                 </div>
 
