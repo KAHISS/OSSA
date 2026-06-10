@@ -179,12 +179,17 @@ export default async function PlanPage({
 
             <Table className="text-xl">
                 <TableHeader>
-                    <TableRow>
-                        {columns.map((column) => (
-                            <TableHead key={column}>{column}</TableHead>
-                        ))}
-                    </TableRow>
-                </TableHeader>
+            <TableRow>
+                {columns.map((column) => (
+                    <TableHead 
+                        key={column} 
+                        className={column === "Ações" ? "text-right pr-6" : ""}
+                    >
+                        {column}
+                    </TableHead>
+                ))}
+            </TableRow>
+        </TableHeader>
                 <TableBody>
                     {sanitizedQuery.map((plan: any) => (
                         <TableRow key={plan.id} className="hover:bg-gray-50 transition-colors">
@@ -205,7 +210,7 @@ export default async function PlanPage({
                                         variant="outline"
                                         className="h-9 px-4 text-[15px] font-medium text-black hover:bg-red-50 hover:border-red-500 flex items-center gap-2"
                                     >
-                                        <Link href={`/painel/plano/${plan.id}`}>
+                                        <Link href={`/painel/plano/${plan.id}/atualizar`}>
                                             <FaEdit /> Editar
                                         </Link>
                                     </Button>
