@@ -37,6 +37,11 @@ const modules = [
     name: "Turma",
     href: "/painel/turma",
   },
+  {
+    id: "enrollments",
+    name: "Matrículas",
+    href: "/painel/matriculas",
+  }
 ]
 
 export function AppSidebar() {

@@ -104,6 +104,7 @@ model Category {
   description  String? @db.VarChar(1255)
   name         String
   weight_range String  @db.VarChar(30)
+  createdAt    DateTime @default(now())
 
   @@map("category")
 }
@@ -190,7 +191,8 @@ model Schedule {
 model Enrollment {
   id String @id @default(cuid())
 
-  enrollmentDate DateTime @default(now()) @map("enrollment_date") // data_matricula
+  enrollmentDate DateTime @default(now()) @map("enrollment_date")
+  status         EnrollmentStatus @default(ACTIVE)
 
   trainingGroupId String        @map("training_group_id")
   trainingGroup   TrainingGroup @relation(fields: [trainingGroupId], references: [id], onDelete: Cascade)
@@ -206,6 +208,11 @@ model Enrollment {
   @@index([studentId])
   @@index([scheduleId])
   @@map("enrollment")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  INACTIVE
 }
 
 enum UserType {
