@@ -174,7 +174,7 @@ export default function EditPlanPage({ params }: PageProps) {
                         {/* Período */}
                         <div className="space-y-2">
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                                <FaRibbon className="text-red-700" /> Período
+                                <FaRibbon className="text-red-700" /> Duração
                             </label>
                             <Select 
                                 name="period" 
@@ -214,7 +214,7 @@ export default function EditPlanPage({ params }: PageProps) {
                         {/* Descrição */}
                         <div className="md:col-span-2 space-y-2">
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                                <FaEdit className="text-red-700" /> Descrição
+                                <FaEdit className="text-red-700" /> Benefícios
                             </label>
                             <Textarea 
                                 name="description" 
