@@ -5,18 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { 
-    FaTh, 
     FaArrowLeft, 
-    FaTag, 
     FaEdit,
+    FaGem,
     FaRibbon,
-    FaGem
+    FaTag
 } from 'react-icons/fa';
 import Link from "next/link";
 import { updatePlan } from "@/services/plan-services";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, use } from "react";
 import { toast } from "sonner";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Confirmation from "@/components/ui/confirmation";
 import { 
     Select, 
@@ -24,12 +23,19 @@ import {
     SelectItem, 
     SelectTrigger, 
     SelectValue 
-} from "@/components/ui/select"; // CORREÇÃO: Importação corrigida e limpa
+} from "@/components/ui/select";
 
-export default function EditPlanPage() {
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
+
+export default function EditPlanPage({ params }: PageProps) {
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
-    const params = useParams();
+    
+    // Desembrulha com segurança o ID da URL no lado do cliente
+    const resolvedParams = use(params);
+    const planId = resolvedParams?.id;
 
     const [state, formAction, isPending] = useActionState(updatePlan, { 
         message: "", 
@@ -43,6 +49,7 @@ export default function EditPlanPage() {
         description: "",
         price: ""
     });
+    
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -50,30 +57,34 @@ export default function EditPlanPage() {
         formRef.current?.requestSubmit(); 
     };
 
+    // Monitora o resultado da Server Action de atualização
     useEffect(() => {
         if (state?.message) {
             if (state.status === "error") {
-                toast.error("Erro", {
-                    description: state.message,
-                });
+                toast.error("Erro", { description: state.message });
             } else if (state.status === "success") {
-                toast.success("Sucesso!", {
-                    description: state.message,
-                });
+                toast.success("Sucesso!", { description: state.message });
                 router.push("/painel/plano");
             }
         }
     }, [router, state]);
 
+    // Busca os dados tentando as duas possíveis rotas da sua API
     useEffect(() => {
-        const planId = params?.id;
         if (!planId) return;
 
         async function loadPlan() {
             try {
-                const response = await fetch(`/api/plano/${planId}`);
+                // Tentativa 1: Rota estrita com /atualizar no final
+                let response = await fetch(`/api/plano/${planId}/atualizar`);
+                
+                // Tentativa 2: Caso a primeira dê 404, tenta a rota limpa por ID
                 if (!response.ok) {
-                    throw new Error("Plano não encontrado");
+                    response = await fetch(`/api/plano/${planId}`);
+                }
+
+                if (!response.ok) {
+                    throw new Error("Plano não encontrado no banco de dados.");
                 }
 
                 const plano = await response.json();
@@ -85,6 +96,8 @@ export default function EditPlanPage() {
                     description: plano.description || "",
                     price: plano.price !== undefined && plano.price !== null ? String(plano.price) : "",
                 });
+                
+                setLoadError(null);
             } catch (error) {
                 setLoadError((error as Error).message);
             } finally {
@@ -93,7 +106,7 @@ export default function EditPlanPage() {
         }
 
         loadPlan();
-    }, [params]);
+    }, [planId]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
@@ -103,7 +116,7 @@ export default function EditPlanPage() {
     if (isLoading) {
         return (
             <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
-                <p className="text-gray-600">Carregando dados do plano...</p>
+                <p className="text-gray-600 text-xl font-semibold">Carregando dados do plano...</p>
             </div>
         );
     }
@@ -111,10 +124,10 @@ export default function EditPlanPage() {
     if (loadError) {
         return (
             <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
-                <div className="bg-white rounded-lg border p-6 shadow-sm">
-                    <p className="text-red-600">{loadError}</p>
-                    <Button asChild className="mt-4">
-                        <Link href="/painel/plano">Voltar</Link>
+                <div className="bg-white rounded-lg border p-6 shadow-sm max-w-4xl">
+                    <p className="text-red-600 text-xl font-semibold mb-4">⚠️ {loadError}</p>
+                    <Button asChild className="bg-zinc-900 text-white hover:bg-zinc-800 h-11 px-6 text-lg font-semibold cursor-pointer">
+                        <Link href="/painel/plano">Voltar para listagem</Link>
                     </Button>
                 </div>
             </div>
@@ -123,7 +136,7 @@ export default function EditPlanPage() {
 
     return (
         <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
-            {/* Header Responsivo */}
+            {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h1 className={`text-4xl md:text-5xl ${fonts.bebas.className} flex items-center gap-3`}>
                     <FaGem className="text-red-700 text-3xl md:text-5xl" />
@@ -137,6 +150,7 @@ export default function EditPlanPage() {
                 </Button>
             </div>
 
+            {/* Formulário */}
             <div className="bg-white rounded-lg border p-4 md:p-8 shadow-sm">
                 <form ref={formRef} action={formAction} className="space-y-6 md:space-y-8">
                     <input type="hidden" name="id" value={formValues.id} />
@@ -162,7 +176,6 @@ export default function EditPlanPage() {
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <FaRibbon className="text-red-700" /> Período
                             </label>
-                            {/* CORREÇÃO: Vinculado o value e o evento onValueChange para controlar o Select de forma correta */}
                             <Select 
                                 name="period" 
                                 required 
@@ -198,7 +211,7 @@ export default function EditPlanPage() {
                             />
                         </div>
 
-                        {/* Descrição - Full Width no Desktop */}
+                        {/* Descrição */}
                         <div className="md:col-span-2 space-y-2">
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <FaEdit className="text-red-700" /> Descrição
