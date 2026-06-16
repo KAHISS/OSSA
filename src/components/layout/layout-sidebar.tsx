@@ -41,6 +41,11 @@ const modules = [
     id: "enrollments",
     name: "Matrículas",
     href: "/painel/matriculas",
+  },
+  {
+    id: "publications",
+    name: "Publicações",
+    href: "/painel/publicacoes",
   }
 ]
 
