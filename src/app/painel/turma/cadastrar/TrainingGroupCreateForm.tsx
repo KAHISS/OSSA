@@ -41,8 +41,23 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
     status: "",
   });
 
+  // Função para validar o formulário e garantir que os horários foram adicionados antes de enviar
   const handleConfirm = () => {
-    formRef.current?.requestSubmit();
+    const form = formRef.current;
+
+    if (!form) return;
+
+    if (!form.reportValidity()) {
+      toast.error("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (schedules.length === 0) {
+      toast.error("Adicione ao menos um horário para esta turma.");
+      return;
+    }
+
+    form.requestSubmit();
   };
 
   const handleAddSchedule = (event: FormEvent<HTMLButtonElement>) => {
@@ -95,7 +110,7 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
         <form ref={formRef} action={formAction} className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Instrutor</label>
+              <label className="text-lg font-semibold text-gray-700">Instrutor *</label>
               <select
                 name="instructorId"
                 required
@@ -111,7 +126,7 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
             </div>
 
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Nome da Turma</label>
+              <label className="text-lg font-semibold text-gray-700">Nome da Turma *</label>
               <Input
                 name="name"
                 type="text"
@@ -124,7 +139,7 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-lg font-semibold text-gray-700">Capacidade Máxima de Alunos</label>
+              <label className="text-lg font-semibold text-gray-700">Capacidade Máxima de Alunos *</label>
               <Input
                 name="studentCapacity"
                 type="number"
@@ -140,7 +155,7 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2 col-span-full">
-              <label className="text-lg font-semibold text-gray-700">Horários da Turma</label>
+              <label className="text-lg font-semibold text-gray-700">Horários da Turma *</label>
 
               <div className="space-y-2 mb-3">
                 {schedules.length > 0 ? (
@@ -230,6 +245,11 @@ export default function TrainingGroupCreateForm({ instructors }: TrainingGroupCr
               classNameButton="w-full sm:w-auto bg-zinc-900 text-white h-12 px-8 text-xl font-semibold"
             />
           </div>
+
+          <div>
+            <p className="text-sm text-gray-500">* Campos obrigatórios</p>
+          </div>
+
         </form>
       </div>
     </div>
