@@ -29,15 +29,19 @@ export async function createTrainingGroup(prevState: unknown, formData: FormData
     const name = (formData.get("name") as string)?.trim() || "";
     const studentCapacity = parseInt(formData.get("studentCapacity") as string) || 0;
     const instructorId = (formData.get("instructorId") as string)?.trim() || "";
-    const startTime = (formData.get("startTime") as string)?.trim() || "";
     const days = formData.getAll("days") as DayOfWeek[];
+    const startTimes = formData.getAll("startTimes") as string[];
 
-    if (!name || !studentCapacity || !instructorId || !startTime || !days || days.length === 0) {
+    if (!name || !studentCapacity || !instructorId || !days || days.length === 0 || !startTimes || startTimes.length === 0) {
         return { message: "Todos os campos obrigatórios devem ser preenchidos.", status: "error" };
     }
 
     if (studentCapacity <= 0) {
         return { message: "A capacidade de alunos deve ser maior que 0.", status: "error" };
+    }
+
+    if (days.length !== startTimes.length) {
+        return { message: "Dados de horários inválidos.", status: "error" };
     }
 
     try {
@@ -54,7 +58,8 @@ export async function createTrainingGroup(prevState: unknown, formData: FormData
             return { message: "O usuário selecionado não é um instrutor.", status: "error" };
         }
 
-        const schedulesCreate = days.map((day) => {
+        const schedulesCreate = days.map((day, index) => {
+            const startTime = startTimes[index];
             const parsedStart = new Date(`1970-01-01T${startTime}:00`);
             return {
                 dayOfWeek: day,
@@ -249,18 +254,6 @@ export async function createSchedule(formData: FormData) {
 
         if (!trainingGroup) {
             return { message: "Turma não encontrada.", status: "error" };
-        }
-
-        // Verifica se já existe um horário para este dia
-        const existingSchedule = await prisma.schedule.findFirst({
-            where: {
-                trainingGroupId,
-                dayOfWeek
-            }
-        });
-
-        if (existingSchedule) {
-            return { message: `Já existe um horário para ${dayOfWeek} nesta turma.`, status: "error" };
         }
 
         const parsedStart = new Date(`1970-01-01T${startTime}:00`);
