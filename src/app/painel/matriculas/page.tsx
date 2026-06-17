@@ -16,20 +16,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { ButtonDelete } from "@/components/ui/ButtonDelete";
 import Link from "next/link";
+import { translateDay } from "@/utils/enrollment-utils";
 import {
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import {
     FaAddressCard,
     FaPlus,
@@ -193,10 +185,10 @@ export default async function EnrollmentsPage({
                                         <HoverCardContent className="w-80 h-auto">
                                             <h1 className="font-bold text-gray-700">Detalhes do Aluno</h1>
                                             <p className="mb-2">{enrollment.student?.name}</p>
-                                            
+
                                             <h2 className="font-bold text-gray-700">Turma: </h2>
                                             <p className="mb-2">{enrollment.trainingGroup?.name || "N/A"}</p>
-                                            
+
                                             <h2 className="font-bold text-gray-700">Horário ID: </h2>
                                             <p className="text-sm text-gray-500 truncate">{enrollment.scheduleId}</p>
                                         </HoverCardContent>
@@ -205,8 +197,19 @@ export default async function EnrollmentsPage({
 
                                 <TableCell>{enrollment.trainingGroup?.name || "N/A"}</TableCell>
 
-                                {/* Assumindo que seu schedule tenha um campo 'name' ou 'time'. Ajuste conforme necessário */}
-                                <TableCell>{enrollment.schedule?.name || "N/A"}</TableCell>
+                                <TableCell>
+                                    {enrollment.schedule ? (
+                                        <>
+                                            {translateDay(enrollment.schedule.dayOfWeek)}
+                                            <br />
+                                            {enrollment.schedule.startTime instanceof Date
+                                                ? enrollment.schedule.startTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                                                : enrollment.schedule.startTime || "Horário não definido"}
+                                        </>
+                                    ) : (
+                                        "N/A"
+                                    )}
+                                </TableCell>
 
                                 <TableCell>
                                     {new Date(enrollment.enrollmentDate).toLocaleDateString('pt-BR')}
