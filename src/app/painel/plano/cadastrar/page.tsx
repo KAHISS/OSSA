@@ -89,7 +89,7 @@ export default function CreatePlanPage() {
                 
                 <div className="space-y-2">
                     <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                        <FaRibbon className="text-red-700" /> Período
+                        <FaRibbon className="text-red-700" /> Duração
                     </label>
                     {/* CORREÇÃO: Ajustado para usar os subcomponentes corretos da sua pasta ui/select e alterado name para period */}
                     <Select name="period" required>
@@ -107,7 +107,7 @@ export default function CreatePlanPage() {
                   
                 <div>
                     <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-                        <FaEdit className="text-red-700" /> Descrição
+                        <FaEdit className="text-red-700" /> Benefícios
                     </label>
                     <Textarea name="description" required placeholder="Descreva os detalhes do plano..." />
                 </div>

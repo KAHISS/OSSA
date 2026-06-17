@@ -95,7 +95,7 @@ export default async function PlanPage({
         price: plan.price ? plan.price.toNumber() : 0
     }));
 
-    const columns = [ "Título", "Período", "Descrição", "Preço", "Ações" ];
+    const columns = [ "Título", "Duração", "Benefícios", "Preço", "Ações" ];
 
     return (
      <div className={`my-6 mx-6 font-thin ${fonts.oswald.className}`}>
@@ -135,7 +135,7 @@ export default async function PlanPage({
 
                             {/* Período (Select) */}
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-gray-700">Período</label>
+                                <label className="text-sm font-semibold text-gray-700">Duração</label>
                                 {/* CORREÇÃO: Alterado name de 'stripe' para 'period' para casar com sua API/Busca */}
                                 <Select defaultValue={resolvedSearchParams.period || "todos"} name="period">
                                     <SelectTrigger className="w-full h-10 bg-white border-gray-300 focus:ring-zinc-900 text-[16px]">
@@ -151,9 +151,9 @@ export default async function PlanPage({
                                 </Select>
                             </div>
 
-                            {/* Descrição */}
+                            {/* Benefícios */}
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-gray-700">Descrição</label>
+                                <label className="text-sm font-semibold text-gray-700">Benefícios</label>
                                 <Input name="description" placeholder="Palavra-chave..." defaultValue={resolvedSearchParams.description || ""} className="h-10 text-[16px]" />
                             </div>
 
