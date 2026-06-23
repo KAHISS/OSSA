@@ -28,6 +28,7 @@ model User {
   trainingGroups  TrainingGroup[]
   enrollments     Enrollment[]
   publications    Publication[]
+  payments        Payment[]
 
   @@map("user")
 }
@@ -99,24 +100,25 @@ model Verification {
 }
 
 model Category {
-  id           String  @id @default(cuid())
-  age_group    String  @db.VarChar(30)
-  description  String? @db.VarChar(1255)
+  id           String   @id @default(cuid())
+  age_group    String   @db.VarChar(30)
+  description  String?  @db.VarChar(1255)
   name         String
-  weight_range String  @db.VarChar(30)
+  weight_range String   @db.VarChar(30)
   createdAt    DateTime @default(now())
 
   @@map("category")
 }
+
 model Publication {
   id           String   @id @default(uuid())
   createdAt    DateTime @default(now())
-  updatedAt             DateTime  @updatedAt
+  updatedAt    DateTime @updatedAt
   title        String
   content      String
-  instructorId String   // Campo que guarda o ID do instrutor
+  instructorId String // Campo que guarda o ID do instrutor
   instructor   User     @relation(fields: [instructorId], references: [id])
-  
+
   // SE ESTIVER ASSIM ABAIXO, VOCÊ PRECISA REMOVER O 'name' OU ADICIONAR O @default("")/fazer opcional:
   // name         String   <-- Se esta linha existir e não for opcional, o Prisma vai reclamar que ela falta.
 }
@@ -149,10 +151,10 @@ model Branch {
 }
 
 //Grupo de Treinamento/Turma
-model TrainingGroup { 
+model TrainingGroup {
   id              String @id @default(cuid())
   name            String @default("")
-  studentCapacity Int    @map("student_count") @db.SmallInt  // capacidade máxima de alunos por turma
+  studentCapacity Int    @map("student_count") @db.SmallInt // capacidade máxima de alunos por turma
 
   branchId String? @map("branch_id") //ID da filial. O símbolo ? indica que este campo é opcional (uma turma pode não ter filial vinculada).
   branch   Branch? @relation(fields: [branchId], references: [id], onDelete: Cascade) //Se a filial dona deste grupo for deletada, este grupo de treinamento também será apagado automaticamente
@@ -161,9 +163,9 @@ model TrainingGroup {
   instructor   User   @relation(fields: [instructorId], references: [id], onDelete: Restrict) //Vincula a turma a um usuário instrutor
 
   createdAt   DateTime     @default(now()) //Data de criação do grupo de treinamento, definida automaticamente para o momento em que o registro é criado.
-  updatedAt   DateTime     @updatedAt      //Data de atualização do grupo de treinamento, atualizada automaticamente sempre que o registro é modificado.
-  schedules   Schedule[]                   //Relacionamento um-para-muitos com a entidade Schedule, indicando que um grupo de treinamento pode ter vários horários de aula.
-  enrollments Enrollment[]                  //Relacionamento um-para-muitos com a entidade Enrollment, indicando que um grupo de treinamento pode ter várias matrículas de alunos.
+  updatedAt   DateTime     @updatedAt //Data de atualização do grupo de treinamento, atualizada automaticamente sempre que o registro é modificado.
+  schedules   Schedule[] //Relacionamento um-para-muitos com a entidade Schedule, indicando que um grupo de treinamento pode ter vários horários de aula.
+  enrollments Enrollment[] //Relacionamento um-para-muitos com a entidade Enrollment, indicando que um grupo de treinamento pode ter várias matrículas de alunos.
 
   @@index([branchId])
   @@index([instructorId])
@@ -191,7 +193,7 @@ model Schedule {
 model Enrollment {
   id String @id @default(cuid())
 
-  enrollmentDate DateTime @default(now()) @map("enrollment_date")
+  enrollmentDate DateTime         @default(now()) @map("enrollment_date")
   status         EnrollmentStatus @default(ACTIVE)
 
   trainingGroupId String        @map("training_group_id")
@@ -208,6 +210,27 @@ model Enrollment {
   @@index([studentId])
   @@index([scheduleId])
   @@map("enrollment")
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  studentId String
+  student   User   @relation(fields: [studentId], references: [id])
+
+  type   PaymentType
+  amount Decimal     @db.Decimal(6, 2)
+
+  dueDate     DateTime
+  paymentDate DateTime?
+
+  paymentMethod PaymentMethod?
+  status        PaymentStatus  @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pagamentos")
 }
 
 enum EnrollmentStatus {
@@ -243,4 +266,24 @@ enum DayOfWeek {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+enum PaymentMethod {
+  PIX
+  BOLETO
+  CREDIT_CARD
+  DEBIT_CARD
+}
+
+enum PaymentType {
+  PLAN
+  GRADUATION
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
 }
