@@ -7,6 +7,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// import { generateMonthlyPaymentForStudent } from "@/services/payments-services";
+
+// ...dentro do POST, após o prisma.user.create(...):
+//
+// const user = await prisma.user.create({ data: { ...data } });
+//
+// if (user.planId) {
+//   await generateMonthlyPaymentForStudent(user.id);
+// }
+//
+// return NextResponse.json(user, { status: 201 });
 // GET -> lista pagamentos
 export async function GET() {
   const payments = await prisma.payment.findMany({

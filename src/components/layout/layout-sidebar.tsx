@@ -46,6 +46,11 @@ const modules = [
     id: "publications",
     name: "Publicações",
     href: "/painel/publicacoes",
+  },
+  {
+    id: "payments",
+    name: "Pagamentos",
+    href: "/painel/pagamentos",
   }
 ]
 
