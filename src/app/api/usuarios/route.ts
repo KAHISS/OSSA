@@ -51,6 +51,9 @@ export async function POST(request: Request) {
             }
         });
 
+        // if (user.planId) {
+        //   await generateMonthlyPaymentForStudent(user.id);
+        // }
         return NextResponse.json(newUser, { status: 201 });
     } catch (error) {
         console.error("Erro ao criar usuário:", error);
