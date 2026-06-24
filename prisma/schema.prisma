@@ -27,6 +27,7 @@ model User {
   student         Student?
   trainingGroups  TrainingGroup[]
   enrollments     Enrollment[]
+  registrations   Registration[] 
   publications    Publication[]
   payments        Payment[]
 
@@ -129,6 +130,7 @@ model Plan {
   period      String  @db.VarChar(255)
   description String? @db.Text
   price       Decimal @db.Decimal(6, 2)
+  registrations Registration[] 
 
   @@map("plan")
 }
@@ -212,6 +214,23 @@ model Enrollment {
   @@map("enrollment")
 }
 
+model Registration {
+  id String @id @default(cuid())
+  startDate DateTime @default(now()) @map("start_date")
+  dueDate DateTime @map("due_date")
+  status RegistrationStatus @default(ACTIVE)
+  studentId String @map("student_id")
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  planId String @map("plan_id")
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([planId])
+  @@map("registration")
+}
+
 model Payment {
   id String @id @default(uuid())
 
@@ -287,3 +306,12 @@ enum PaymentStatus {
   OVERDUE
   CANCELLED
 }
+
+enum RegistrationStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  CANCELLED
+}
+
+
