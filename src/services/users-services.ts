@@ -3,16 +3,97 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { Prisma } from "@generated/prisma/client";
 
-export async function deleteUser(formData: FormData) {
+export interface DeleteUserResult {
+    message: string;
+    status: "success" | "error";
+}
+
+/**
+ * Remove um usuário, mas antes verifica se ele está sendo usado como chave
+ * estrangeira em outras tabelas que NÃO possuem exclusão em cascata
+ * (Payment.studentId, Publication.instructorId, TrainingGroup.instructorId).
+ *
+ * Se houver vínculo, a exclusão é bloqueada e uma mensagem explicativa é
+ * retornada para ser exibida ao usuário .
+ */
+export async function deleteUser(formData: FormData): Promise<DeleteUserResult> {
     "use server";
     const userId = formData.get("id") as string;
 
-    await prisma.user.delete({
-        where: { id: userId }
-    });
+    if (!userId) {
+        return {
+            status: "error",
+            message: "Não foi possível identificar o usuário a ser excluído.",
+        };
+    }
 
-    revalidatePath("/painel/usuarios");
+    try {
+        // Conta os vínculos que realmente IMPEDEM a exclusão (relações sem cascade)
+        const [paymentsCount, publicationsCount, trainingGroupsCount] = await Promise.all([
+            prisma.payment.count({ where: { studentId: userId } }),
+            prisma.publication.count({ where: { instructorId: userId } }),
+            prisma.trainingGroup.count({ where: { instructorId: userId } }),
+        ]);
+
+        const vinculos: string[] = [];
+
+        if (paymentsCount > 0) {
+            vinculos.push(
+                `${paymentsCount} ${paymentsCount === 1 ? "pagamento" : "pagamentos"}`
+            );
+        }
+        if (publicationsCount > 0) {
+            vinculos.push(
+                `${publicationsCount} ${publicationsCount === 1 ? "publicação" : "publicações"}`
+            );
+        }
+        if (trainingGroupsCount > 0) {
+            vinculos.push(
+                `${trainingGroupsCount} ${trainingGroupsCount === 1 ? "turma" : "turmas"} como instrutor`
+            );
+        }
+
+        if (vinculos.length > 0) {
+            return {
+                status: "error",
+                message: `Não é possível excluir este usuário pois ele está vinculado a ${vinculos.join(
+                    ", "
+                )}. Remova ou transfira esses registros antes de excluir o usuário.`,
+            };
+        }
+
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        revalidatePath("/painel/usuarios");
+
+        return {
+            status: "success",
+            message: "Usuário removido com sucesso!",
+        };
+    } catch (error) {
+        // Rede de segurança: caso o banco rejeite a exclusão por algum outro
+        // relacionamento que não verificamos explicitamente acima.
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2003"
+        ) {
+            return {
+                status: "error",
+                message:
+                    "Não é possível excluir este usuário pois ele está vinculado a outros registros do sistema (matrículas, inscrições, pagamentos, publicações ou turmas).",
+            };
+        }
+
+        console.error("Erro ao excluir usuário:", error);
+        return {
+            status: "error",
+            message: "Ocorreu um erro inesperado ao tentar excluir o usuário.",
+        };
+    }
 }
 
 export async function createUser(prevState: any, formData: FormData) {

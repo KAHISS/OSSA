@@ -3,15 +3,25 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FaTrashAlt } from "react-icons/fa";
+import { toast } from "sonner";
+
+interface DeleteActionResult {
+    message: string;
+    status: "success" | "error" | string;
+}
 
 interface PopupDeleteProps {
     message: string;
-    action: (formData: FormData) => void;
+    // A action pode (opcionalmente) retornar { message, status } para que o
+    // ButtonDelete exiba um toast explicando por que a exclusão não pôde
+    // ser feita (ex: registro usado como chave estrangeira em outra tabela).
+    action: (formData: FormData) => Promise<DeleteActionResult | void> | void;
     id: string;
 }
 
 export function ButtonDelete({ message, action, id }: PopupDeleteProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     return (
         <>
@@ -36,21 +46,54 @@ export function ButtonDelete({ message, action, id }: PopupDeleteProps) {
                             <Button
                                 variant="outline"
                                 onClick={() => setIsOpen(false)}
+                                disabled={isDeleting}
                                 className="h-10 px-4"
                             >
                                 Cancelar
                             </Button>
 
-                            <form action={async (formData) => {
-                                await action(formData);
-                                setIsOpen(false);
-                            }}>
+                            <form
+                                action={async (formData) => {
+                                    setIsDeleting(true);
+
+                                    try {
+                                        const result = await action(formData);
+
+                                        // Action não retornou nada (padrão "fire and forget") ->
+                                        // mantém o comportamento original, sem toast.
+                                        if (!result) {
+                                            setIsOpen(false);
+                                            return;
+                                        }
+
+                                        if (result.status === "error") {
+                                            // Não pôde excluir (ex: registro vinculado por chave
+                                            // estrangeira em outra tabela) -> avisa o usuário e
+                                            // mantém o item na lista.
+                                            toast.error("Não foi possível excluir", {
+                                                description: result.message,
+                                            });
+                                        } else {
+                                            toast.success(result.message);
+                                        }
+                                    } catch (error) {
+                                        toast.error("Não foi possível excluir", {
+                                            description:
+                                                "Ocorreu um erro inesperado ao tentar excluir este registro.",
+                                        });
+                                    } finally {
+                                        setIsDeleting(false);
+                                        setIsOpen(false);
+                                    }
+                                }}
+                            >
                                 <input type="hidden" name="id" value={id} />
                                 <Button
                                     type="submit"
-                                    className="bg-red-600 hover:bg-red-700 text-white h-10 px-4"
+                                    disabled={isDeleting}
+                                    className="bg-red-600 hover:bg-red-700 text-white h-10 px-4 disabled:opacity-60"
                                 >
-                                    Confirmar
+                                    {isDeleting ? "Excluindo..." : "Confirmar"}
                                 </Button>
                             </form>
                         </div>

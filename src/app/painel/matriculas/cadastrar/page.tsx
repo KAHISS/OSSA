@@ -242,7 +242,7 @@ export default function CreateEnrollmentPage() {
                                     {availableSchedules.map((schedule) => {
                                         const isSelected = selectedScheduleIds.includes(schedule.id);
                                         const timeDisplay = schedule.startTime.includes("T") 
-                                            ? new Date(schedule.startTime).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })
+                                            ? new Date(schedule.startTime).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
                                             : schedule.startTime;
 
                                         return (
