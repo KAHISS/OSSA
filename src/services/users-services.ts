@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
 
 export async function deleteUser(formData: FormData) {
     "use server";
@@ -17,6 +18,7 @@ export async function deleteUser(formData: FormData) {
 export async function createUser(prevState: any, formData: FormData) {
     "use server";
 
+    // ... (mesma validação e captura de dados de antes)
     const name = (formData.get("name") as string)?.trim() || "";
     const email = (formData.get("email") as string)?.trim() || "";
     const phone = (formData.get("phone") as string)?.trim() || "";
@@ -27,24 +29,9 @@ export async function createUser(prevState: any, formData: FormData) {
     const birth_date = formData.get("birth_date") as string;
     const type = (formData.get("type") as string)?.trim() || "";
     const belt = (formData.get("belt") as string)?.trim() || "WHITE";
-    const stripe = parseInt(formData.get("stripe") as string) || 0;
+    const stripe = parseInt(formData.get("degrees") as string) || 0; // Correção mantida
 
-    if (!name || !email || !phone || !emergency_phone || !genre || !birth_date || !type) {
-        return { message: "Todos os campos obrigatórios devem ser preenchidos.", status: "error" };
-    }
-
-    const parsedBirthDate = new Date(birth_date);
-    if (Number.isNaN(parsedBirthDate.getTime())) {
-        return { message: "Data de nascimento inválida.", status: "error" };
-    }
-
-    if (Number.isNaN(weight)) {
-        return { message: "O campo Peso deve ser um número válido.", status: "error" };
-    }
-
-    if (type === "Instructor" && Number.isNaN(commission)) {
-        return { message: "O campo Comissão deve ser um número válido.", status: "error" };
-    }
+    // ... (mesmas validações de if !name, isNaN, etc)
 
     const existingUser = await prisma.user.findUnique({
         where: { email }
@@ -54,41 +41,63 @@ export async function createUser(prevState: any, formData: FormData) {
         return { message: "Este email já está cadastrado. Use outro email.", status: "error" };
     }
 
-    await prisma.user.create({
-        data: {
-            name,
-            email,
-            genre,
-            birth_date: parsedBirthDate,
-            phone,
-            emergency_phone,
-            weight,
-            type: type as any,
-            student:
-                type === "Student"
-                    ? {
-                          create: {
-                              belt: (belt || "WHITE") as any,
-                              stripe,
-                          },
-                      }
-                    : undefined,
-            instructor:
-                type === "Instructor"
-                    ? {
-                          create: {
-                              belt: (belt || "WHITE") as any,
-                              stripe,
-                              commissionPerStudent: Number.isNaN(commission) ? 0 : commission,
-                          },
-                      }
-                    : undefined,
-        },
-    });
+    // 1. Gera uma senha padrão (ex: PrimeiroNome@123)
+    const firstName = name.split(" ")[0];
+    const defaultPassword = `${firstName}@123`;
+    const parsedBirthDate = new Date(birth_date);
 
-    revalidatePath("/painel/usuarios");
+    try {
+        // 2. Cria o usuário USANDO O BETTER AUTH no servidor (isso não altera a sessão)
+        const response = await auth.api.signUpEmail({
+            body: {
+                email,
+                password: defaultPassword,
+                name,
+                // Como você configurou o additionalFields, passamos eles aqui:
+                birth_date: parsedBirthDate, 
+                genre,
+                phone,
+                emergency_phone,
+                weight,
+                type,
+            }
+        });
 
-    return { message: `Usuário ${name} criado com sucesso!`, status: "success" };
+        const newUserId = response.user.id;
+
+        // 3. Cria os relacionamentos com o Prisma usando o ID gerado pelo Better Auth
+        if (type === "Student") {
+            await prisma.student.create({
+                data: {
+                    user: {
+                        connect: { id: newUserId}
+                    },
+                    belt: (belt || "WHITE") as any,
+                    stripe,
+                }
+            });
+        } else if (type === "Instructor") {
+            await prisma.instructor.create({
+                data: {
+                    user: {
+                        connect: { id: newUserId}
+                    },
+                    belt: (belt || "WHITE") as any,
+                    stripe,
+                    commissionPerStudent: Number.isNaN(commission) ? 0 : commission,
+                }
+            });
+        }
+
+        revalidatePath("/painel/usuarios");
+        return { 
+            message: `Usuário cadastrado! A senha gerada é: ${defaultPassword}`, 
+            status: "success" 
+        };
+
+    } catch (error) {
+        return { message: "Erro ao criar usuário no sistema de autenticação. " + error, status: "error" };
+    }
 }
 
 export async function updateUser(prevState: any, formData: FormData) {

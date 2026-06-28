@@ -12,7 +12,8 @@
     "db-up": "docker compose up -d",
     "db-down": "docker compose down",
     "db-reset": "docker compose down -v",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "createsuperuser": "npx tsx --env-file=.env src/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
@@ -46,6 +47,7 @@
     "eslint-config-next": "16.2.1",
     "prisma": "^7.5.0",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }

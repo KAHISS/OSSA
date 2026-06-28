@@ -48,6 +48,7 @@ const stats = [
 ];
 
 export default async function DashboardPage() {
+
     return (
         <div className={`my-6 mx-6 font-thin ${fonts.oswald.className}`}>
             {/* Header */}

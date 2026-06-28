@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Avatar,
   AvatarFallback,
@@ -12,7 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { authClient } from "@/lib/auth-client"
 import { Bebas_Neue, Montserrat, Yuji_Syuku, Anton} from 'next/font/google'
+import { useRouter } from "next/navigation"
 
 const bebas = Bebas_Neue({
   subsets: ['latin'],
@@ -20,6 +24,19 @@ const bebas = Bebas_Neue({
 })
 
 export function AvatarDropdown() {
+
+  const router = useRouter()
+
+  async function signOut() {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.replace("/")
+        }
+      }
+    })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,7 +54,7 @@ export function AvatarDropdown() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" className="cursor-pointer">Log out</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={signOut}>Log out</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
