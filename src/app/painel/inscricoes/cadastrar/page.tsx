@@ -62,7 +62,7 @@ export default function CreateRegistrationPage() {
                 toast.error("Erro", { description: state.message });
             } else if (state.status === "success") {
                 toast.success("Sucesso!", { description: state.message });
-                router.push("/painel/registrations");
+                router.push("/painel/inscricoes");
             }
         }
     }, [state, router]);
@@ -104,7 +104,7 @@ export default function CreateRegistrationPage() {
                 </h1>
 
                 <Button variant="outline" asChild className="w-full sm:w-auto h-10 md:h-11 px-6 text-lg md:text-xl font-semibold border-zinc-900 text-zinc-900">
-                    <Link href="/painel/registrations" className="flex items-center justify-center gap-2">
+                    <Link href="/painel/inscricoes" className="flex items-center justify-center gap-2">
                         <FaArrowLeft className="text-xs" /> Voltar
                     </Link>
                 </Button>
