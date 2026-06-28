@@ -43,7 +43,7 @@ Antes de começar, você precisa ter instalado:
 
 ```bash
 git clone <url-do-seu-repositorio> # baixa o repositório na sua maquina
-cd ossa
+cd OSSA
 ```
 
 ### 2. Configurar Variáveis de Ambiente
