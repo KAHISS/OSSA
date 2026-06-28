@@ -35,10 +35,10 @@ model User {
 }
 
 model Student {
-  id     String @id
-  belt   Belt
+  id    String @id
+  belt  Belt
   stripe Int
-  user   User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  user  User   @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("student")
 }
@@ -117,17 +117,14 @@ model Publication {
   updatedAt    DateTime @updatedAt
   title        String
   content      String
-  instructorId String // Campo que guarda o ID do instrutor
+  instructorId String
   instructor   User     @relation(fields: [instructorId], references: [id])
-
-  // SE ESTIVER ASSIM ABAIXO, VOCÊ PRECISA REMOVER O 'name' OU ADICIONAR O @default("")/fazer opcional:
-  // name         String   <-- Se esta linha existir e não for opcional, o Prisma vai reclamar que ela falta.
 }
 
 model Plan {
-  id          String  @id @default(cuid())
-  title       String  @db.VarChar(255)
-  period      String  @db.VarChar(255)
+  id          String @id @default(cuid())
+  title       String @db.VarChar(255)
+  period      String @db.VarChar(255)
   description String? @db.Text
   price       Decimal @db.Decimal(6, 2)
   registrations Registration[] 
@@ -152,22 +149,21 @@ model Branch {
   @@map("branch")
 }
 
-//Grupo de Treinamento/Turma
 model TrainingGroup {
   id              String @id @default(cuid())
   name            String @default("")
-  studentCapacity Int    @map("student_count") @db.SmallInt // capacidade máxima de alunos por turma
+  studentCapacity Int    @map("student_count") @db.SmallInt
 
-  branchId String? @map("branch_id") //ID da filial. O símbolo ? indica que este campo é opcional (uma turma pode não ter filial vinculada).
-  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: Cascade) //Se a filial dona deste grupo for deletada, este grupo de treinamento também será apagado automaticamente
+  branchId String? @map("branch_id")
+  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
-  instructorId String @map("instructor_id") //ID do instrutor responsável por esta turma. Este campo é obrigatório, ou seja, uma turma deve ter um instrutor vinculado.
-  instructor   User   @relation(fields: [instructorId], references: [id], onDelete: Restrict) //Vincula a turma a um usuário instrutor
+  instructorId String @map("instructor_id")
+  instructor   User   @relation(fields: [instructorId], references: [id], onDelete: Restrict)
 
-  createdAt   DateTime     @default(now()) //Data de criação do grupo de treinamento, definida automaticamente para o momento em que o registro é criado.
-  updatedAt   DateTime     @updatedAt //Data de atualização do grupo de treinamento, atualizada automaticamente sempre que o registro é modificado.
-  schedules   Schedule[] //Relacionamento um-para-muitos com a entidade Schedule, indicando que um grupo de treinamento pode ter vários horários de aula.
-  enrollments Enrollment[] //Relacionamento um-para-muitos com a entidade Enrollment, indicando que um grupo de treinamento pode ter várias matrículas de alunos.
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  schedules   Schedule[]
+  enrollments Enrollment[]
 
   @@index([branchId])
   @@index([instructorId])
@@ -237,7 +233,7 @@ model Payment {
   studentId String
   student   User   @relation(fields: [studentId], references: [id])
 
-  type   PaymentType
+  type    PaymentType
   amount Decimal     @db.Decimal(6, 2)
 
   dueDate     DateTime
@@ -313,5 +309,3 @@ enum RegistrationStatus {
   SUSPENDED
   CANCELLED
 }
-
-

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -13,13 +13,21 @@ interface Student {
     name: string;
 }
 
-export default function CadastrarPagamentoPage() {
+function toDateInputValue(value: string | null | undefined) {
+    if (!value) return "";
+    return new Date(value).toISOString().split("T")[0];
+}
+
+export default function AtualizarPagamentoPage() {
     const router = useRouter();
+    const params = useParams();
+    const id = params?.id as string;
 
     const [students, setStudents] = useState<Student[]>([]);
-    const [loadingStudents, setLoadingStudents] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [notFound, setNotFound] = useState(false);
 
     const [studentId, setStudentId] = useState("");
     const [type, setType] = useState("PLAN");
@@ -30,20 +38,39 @@ export default function CadastrarPagamentoPage() {
     const [status, setStatus] = useState("PENDING");
 
     useEffect(() => {
-        async function fetchStudents() {
+        async function fetchData() {
             try {
-                const res = await fetch("/api/usuarios");
-                const data = await res.json();
-                setStudents(Array.isArray(data) ? data : data.users || []);
+                const [studentsRes, paymentRes] = await Promise.all([
+                    fetch("/api/usuarios"),
+                    fetch(`/api/pagamentos/${id}`),
+                ]);
+
+                const studentsData = await studentsRes.json();
+                setStudents(Array.isArray(studentsData) ? studentsData : studentsData.users || []);
+
+                if (paymentRes.status === 404) {
+                    setNotFound(true);
+                    return;
+                }
+
+                const payment = await paymentRes.json();
+
+                setStudentId(payment.studentId || "");
+                setType(payment.type || "PLAN");
+                setAmount(String(payment.amount ?? ""));
+                setDueDate(toDateInputValue(payment.dueDate));
+                setPaymentDate(toDateInputValue(payment.paymentDate));
+                setPaymentMethod(payment.paymentMethod || "");
+                setStatus(payment.status || "PENDING");
             } catch {
-                setError("Não foi possível carregar a lista de alunos.");
+                setError("Não foi possível carregar os dados do pagamento.");
             } finally {
-                setLoadingStudents(false);
+                setLoading(false);
             }
         }
 
-        fetchStudents();
-    }, []);
+        if (id) fetchData();
+    }, [id]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -62,8 +89,8 @@ export default function CadastrarPagamentoPage() {
         setSubmitting(true);
 
         try {
-            const res = await fetch("/api/pagamentos", {
-                method: "POST",
+            const res = await fetch(`/api/pagamentos/${id}`, {
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     studentId,
@@ -78,16 +105,37 @@ export default function CadastrarPagamentoPage() {
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.error || "Erro ao cadastrar pagamento");
+                throw new Error(data.error || "Erro ao atualizar pagamento");
             }
 
             router.push("/painel/pagamentos");
             router.refresh();
         } catch (err: any) {
-            setError(err.message || "Erro ao cadastrar pagamento. Tente novamente mais tarde.");
+            setError(err.message || "Erro ao atualizar pagamento. Tente novamente mais tarde.");
         } finally {
             setSubmitting(false);
         }
+    }
+
+    if (loading) {
+        return (
+            <div className={`my-6 mx-6 text-gray-500 ${fonts.oswald.className}`}>
+                Carregando pagamento...
+            </div>
+        );
+    }
+
+    if (notFound) {
+        return (
+            <div className={`my-6 mx-6 ${fonts.oswald.className}`}>
+                <p className="text-gray-500 mb-4">Pagamento não encontrado.</p>
+                <Button asChild variant="outline">
+                    <Link href="/painel/pagamentos">
+                        <FaArrowLeft /> Voltar para a listagem
+                    </Link>
+                </Button>
+            </div>
+        );
     }
 
     return (
@@ -96,7 +144,7 @@ export default function CadastrarPagamentoPage() {
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                     <h1 className={`text-4xl flex items-center gap-3 ${fonts.bebas.className}`}>
                         <FaMoneyBillWave className="text-red-700 text-4xl" />
-                        Novo Pagamento
+                        Atualizar Pagamento
                     </h1>
 
                     <Button asChild variant="outline" className="h-10 px-4 flex items-center gap-2">
@@ -119,10 +167,9 @@ export default function CadastrarPagamentoPage() {
                         <select
                             value={studentId}
                             onChange={(e) => setStudentId(e.target.value)}
-                            disabled={loadingStudents}
                             className="w-full h-10 bg-white border border-gray-300 rounded-md px-3 text-[16px] focus-visible:ring-zinc-900"
                         >
-                            <option value="">{loadingStudents ? "Carregando..." : "Selecione um aluno"}</option>
+                            <option value="">Selecione um aluno</option>
                             {students.map((student) => (
                                 <option key={student.id} value={student.id}>
                                     {student.name}
@@ -152,7 +199,6 @@ export default function CadastrarPagamentoPage() {
                             step="0.01"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            placeholder="Ex: 150.00"
                             className="h-10 bg-white border-gray-300 focus-visible:ring-zinc-900 text-[16px]"
                         />
                     </div>
@@ -221,7 +267,7 @@ export default function CadastrarPagamentoPage() {
                         disabled={submitting}
                         className="bg-black hover:bg-[#333] text-white h-10 px-6 font-semibold cursor-pointer"
                     >
-                        {submitting ? "Salvando..." : "Cadastrar Pagamento"}
+                        {submitting ? "Salvando..." : "Salvar Alterações"}
                     </Button>
                 </div>
             </form>
