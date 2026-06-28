@@ -20,7 +20,7 @@ model User {
   emergency_phone String
   phone           String
   type            UserType
-  weight          Decimal         @db.Decimal(5, 2)
+  weight          Float
   accounts        Account[]
   instructor      Instructor?
   sessions        Session[]
@@ -47,7 +47,7 @@ model Instructor {
   id                   String  @id
   belt                 Belt
   stripe               Int
-  commissionPerStudent Decimal @db.Decimal(6, 2)
+  commissionPerStudent Float
   user                 User    @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("instructor")

@@ -53,7 +53,7 @@ Copie o arquivo **.env** de exemplo e ajuste os valores necessários (como crede
 ```bash
 cp .env.example .env # copia o conteúdo do .env.example para o arquivo .env
 ```
-Certifique-se de que o `DATABASE_URL` no `.env` aponta para sua instância local do Postgres.
+Certifique-se de que o `DATABASE_URL` no `.env` aponta para sua instância local do Postgres. Assim como as informações de login para o super usuario, isso ira permitir criar um super usuario para logar no sistema.
 
 ### 3. Instalar as dependencias do node
 
@@ -86,8 +86,15 @@ O comando abaixo irá gerar o client para manipulações no banco:
 ```bash
 npm run generate
 ```
+### 6. Criar um super usuário
 
-### 6. Rodar a aplicação
+O comando abaixo irá criar um usuario administrador para logar no sistema de acordo com as credenciais do `.env` :
+
+```bash
+npm run createsuperuser
+```
+
+### 7. Rodar a aplicação
 
 O comando abaixo irá subir o server da aplicação em localhost e na sua rede na porta 3000:
 
@@ -102,6 +109,7 @@ npm run dev
 - Utilize o arquivo `.env.example` como base para configurar o ambiente local  
 - Caso utilize Docker, verifique se os containers estão ativos antes de iniciar a aplicação  
 - Sempre execute `npm install` após clonar o repositório para garantir que todas as dependências estejam instaladas  
+- no `package.json` exixte varios scripts úteis para usar
 - Em caso de alterações no schema do Prisma, lembre-se de rodar as migrations e gerar novamente o client  
 - Recomenda-se utilizar versões compatíveis do Node.js conforme especificado no projeto  
 - Para evitar conflitos, mantenha sua branch atualizada antes de abrir um Pull Request  
