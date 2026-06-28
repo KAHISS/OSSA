@@ -1,7 +1,7 @@
-import { 
-    FaUsers, 
-    FaDollarSign, 
-    FaUserClock, 
+import {
+    FaUsers,
+    FaDollarSign,
+    FaUserClock,
     FaExclamationTriangle,
     FaChartLine
 } from 'react-icons/fa';
@@ -15,39 +15,49 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { fonts } from "@/utils/fonts";
-import Link from "next/link";
+import { getDashboardData } from "@/services/dashboard-services";
+import DashboardCharts from "./DashboardCharts";
 
-// Mock de dados
-const stats = [
-    {
-        title: "Usuários Ativos",
-        value: "1.284",
-        icon: <FaUsers className="text-red-600" />,
-        description: "+12% este mês"
-    },
-    {
-        title: "Total Arrecadado",
-        value: "R$ 45.230",
-        icon: <FaDollarSign className="text-red-600" />,
-        description: "Faturamento bruto"
-    },
-    {
-        title: "Pendências",
-        value: "1",
-        icon: <FaExclamationTriangle className="text-red-600" />,
-        description: "Mensalidades atrasadas"
-    },
-    {
-        title: "Novas Matrículas",
-        value: "+48",
-        icon: <FaChartLine className="text-red-600" />,
-        description: "Últimos 30 dias"
-    }
-];
+const STATUS_BADGE_STYLES: Record<string, string> = {
+    PENDING: "bg-amber-500",
+    OVERDUE: "bg-red-600",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+    PENDING: "Pendente",
+    OVERDUE: "Atrasado",
+};
 
 export default async function DashboardPage() {
+    const { kpis, revenueByMonth, statusBreakdown, overdueList } = await getDashboardData();
+
+    const stats = [
+        {
+            title: "Alunos com Plano Ativo",
+            value: kpis.activeStudents.toLocaleString("pt-BR"),
+            icon: <FaUsers className="text-red-600" />,
+            description: "Inscrições ativas no momento",
+        },
+        {
+            title: "Faturamento do Mês",
+            value: `R$ ${kpis.totalRevenueMonth.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+            icon: <FaDollarSign className="text-red-600" />,
+            description: "Pagamentos recebidos neste mês",
+        },
+        {
+            title: "Pendências",
+            value: kpis.pendingPaymentsCount.toLocaleString("pt-BR"),
+            icon: <FaExclamationTriangle className="text-red-600" />,
+            description: `R$ ${kpis.pendingPaymentsAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} em aberto`,
+        },
+        {
+            title: "Novas Inscrições",
+            value: `+${kpis.newRegistrations}`,
+            icon: <FaChartLine className="text-red-600" />,
+            description: "Últimos 30 dias",
+        },
+    ];
 
     return (
         <div className={`my-6 mx-6 font-thin ${fonts.oswald.className}`}>
@@ -86,6 +96,9 @@ export default async function DashboardPage() {
                 ))}
             </div>
 
+            {/* Gráficos com dados reais */}
+            <DashboardCharts revenueByMonth={revenueByMonth} statusBreakdown={statusBreakdown} />
+
             {/* Tabela de Pendências */}
             <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
                 <div className="bg-zinc-50 px-6 py-4 border-b flex items-center justify-between">
@@ -102,23 +115,35 @@ export default async function DashboardPage() {
                             <TableHead className="text-zinc-900">Plano</TableHead>
                             <TableHead className="text-zinc-900">Valor</TableHead>
                             <TableHead className="text-zinc-900">Vencimento</TableHead>
-                            <TableHead className="text-right text-zinc-900 px-6">Ações</TableHead>
+                            <TableHead className="text-right text-zinc-900 px-6">Status</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {/* Exemplo de Linha */}
-                        <TableRow className="hover:bg-zinc-50/80 transition-colors border-b">
-                            <TableCell className="font-bold py-4">Ricardo Almeida</TableCell>
-                            <TableCell>Mensal VIP</TableCell>
-                            <TableCell className="font-medium text-red-700">R$ 180,00</TableCell>
-                            <TableCell>25/04/2026</TableCell>
-                            <TableCell className="text-right px-6">
-                                <Badge className="bg-red-600 text-white border-none px-3 py-1 uppercase text-[10px] tracking-widest">
-                                    Atrasado
-                                </Badge>
-                            </TableCell>
-                        </TableRow>
-                        {/* Adicionar mais linhas aqui via map */}
+                        {overdueList.length > 0 ? (
+                            overdueList.map((payment) => (
+                                <TableRow key={payment.id} className="hover:bg-zinc-50/80 transition-colors border-b">
+                                    <TableCell className="font-bold py-4">{payment.studentName}</TableCell>
+                                    <TableCell>{payment.planTitle ?? "—"}</TableCell>
+                                    <TableCell className="font-medium text-red-700">
+                                        R$ {payment.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                    </TableCell>
+                                    <TableCell>
+                                        {new Date(payment.dueDate).toLocaleDateString("pt-BR")}
+                                    </TableCell>
+                                    <TableCell className="text-right px-6">
+                                        <Badge className={`${STATUS_BADGE_STYLES[payment.status] ?? "bg-zinc-500"} text-white border-none px-3 py-1 uppercase text-[10px] tracking-widest`}>
+                                            {STATUS_LABELS[payment.status] ?? payment.status}
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={5} className="h-24 text-center text-gray-500 text-lg">
+                                    Nenhum pagamento pendente. 🎉
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>
