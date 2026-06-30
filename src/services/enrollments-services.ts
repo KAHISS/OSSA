@@ -51,9 +51,6 @@ export async function createEnrollment(
   }
 
   try {
-    // ----------------------------------------------------------------
-    // REGRA DE NEGÓCIO: aluno precisa ter inscrição ativa em um plano
-    // ----------------------------------------------------------------
     const activeRegistration = await prisma.registration.findFirst({
       where: {
         studentId,
@@ -65,7 +62,6 @@ export async function createEnrollment(
     });
 
     if (!activeRegistration) {
-      // Busca o nome do aluno só para personalizar a mensagem
       const student = await prisma.user.findUnique({
         where: { id: studentId },
         select: { name: true },
