@@ -11,7 +11,9 @@ import {
     FaToggleOn,
     FaCalendarDay,
     FaCheckSquare,
-    FaSquare
+    FaSquare,
+    FaExclamationTriangle,
+    FaCheckCircle
 } from 'react-icons/fa';
 import {
     Select,
@@ -58,6 +60,14 @@ export default function CreateEnrollmentPage() {
     const [availableSchedules, setAvailableSchedules] = useState<{ id: string; dayOfWeek: string; startTime: string }[]>([]);
     const [loadingSchedules, setLoadingSchedules] = useState<boolean>(false);
     const [selectedScheduleIds, setSelectedScheduleIds] = useState<string[]>([]);
+
+    // --- NOVO: controle da inscrição ativa do aluno ---
+    const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+    // null = ainda não verificado, true/false = resultado da verificação
+    const [hasActiveRegistration, setHasActiveRegistration] = useState<boolean | null>(null);
+    const [activeRegistrationPlan, setActiveRegistrationPlan] = useState<string | null>(null);
+    const [checkingRegistration, setCheckingRegistration] = useState<boolean>(false);
+    // --------------------------------------------------
 
     const handleConfirm = () => {
         formRef.current?.requestSubmit();
@@ -127,7 +137,7 @@ export default function CreateEnrollmentPage() {
 
         async function loadGroupSchedules() {
             setLoadingSchedules(true);
-            setSelectedScheduleIds([]); // Limpa seleções anteriores ao mudar de turma
+            setSelectedScheduleIds([]);
             try {
                 const response = await fetch(`/api/turma/${selectedGroupId}`);
                 if (!response.ok) throw new Error("Erro ao carregar horários");
@@ -142,6 +152,44 @@ export default function CreateEnrollmentPage() {
 
         loadGroupSchedules();
     }, [selectedGroupId]);
+
+    // --- NOVO: verificar inscrição ativa ao selecionar um aluno ---
+    useEffect(() => {
+        if (!selectedStudentId) {
+            setHasActiveRegistration(null);
+            setActiveRegistrationPlan(null);
+            return;
+        }
+
+        async function checkActiveRegistration() {
+            setCheckingRegistration(true);
+            setHasActiveRegistration(null);
+            setActiveRegistrationPlan(null);
+
+            try {
+                const response = await fetch(`/api/inscricoes?studentId=${selectedStudentId}`);
+                if (!response.ok) throw new Error();
+
+                const registrations: { status: string; plan?: { title?: string } }[] = await response.json();
+                const active = registrations.find((r) => r.status === "ACTIVE");
+
+                setHasActiveRegistration(!!active);
+                setActiveRegistrationPlan(active?.plan?.title ?? null);
+            } catch {
+                // Se falhar a consulta, deixa o servidor decidir na hora do submit
+                setHasActiveRegistration(null);
+            } finally {
+                setCheckingRegistration(false);
+            }
+        }
+
+        checkActiveRegistration();
+    }, [selectedStudentId]);
+    // ------------------------------------------------------------
+
+    // O botão de confirmar fica desabilitado se: nenhum horário selecionado,
+    // processando, ou o aluno não tem inscrição ativa (verificado no front)
+    const isSubmitDisabled = isPending || selectedScheduleIds.length === 0 || hasActiveRegistration === false;
 
     return (
         <div className={`my-4 mx-4 md:my-6 md:mx-6 font-thin ${fonts.oswald.className}`}>
@@ -169,7 +217,11 @@ export default function CreateEnrollmentPage() {
                             <label className="text-lg font-semibold text-gray-700 flex items-center gap-2">
                                 <FaGraduationCap className="text-red-700" /> Aluno
                             </label>
-                            <Select name="studentId" required>
+                            <Select
+                                name="studentId"
+                                required
+                                onValueChange={(value) => setSelectedStudentId(value)}
+                            >
                                 <SelectTrigger className="w-full h-12 bg-white border-gray-300 focus:ring-zinc-900 text-lg">
                                     <SelectValue placeholder="Selecione o aluno" />
                                 </SelectTrigger>
@@ -184,6 +236,47 @@ export default function CreateEnrollmentPage() {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
+
+                            {/* --- Feedback de inscrição em plano --- */}
+                            {selectedStudentId && (
+                                <div className="mt-2">
+                                    {checkingRegistration && (
+                                        <p className="text-sm text-gray-500 animate-pulse">
+                                            Verificando inscrição em plano...
+                                        </p>
+                                    )}
+
+                                    {!checkingRegistration && hasActiveRegistration === false && (
+                                        <div className="flex items-start gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                            <FaExclamationTriangle className="mt-0.5 shrink-0 text-red-500" />
+                                            <span>
+                                                Este aluno <strong>não possui inscrição ativa em nenhum plano</strong>.
+                                                Cadastre uma inscrição antes de criar a matrícula.{" "}
+                                                <Link
+                                                    href="/painel/inscricoes/cadastrar"
+                                                    className="underline font-semibold hover:text-red-900"
+                                                >
+                                                    Ir para Inscrições
+                                                </Link>
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {!checkingRegistration && hasActiveRegistration === true && (
+                                        <div className="flex items-center gap-2 rounded-lg border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
+                                            <FaCheckCircle className="shrink-0 text-green-500" />
+                                            <span>
+                                                Inscrição ativa encontrada
+                                                {activeRegistrationPlan && (
+                                                    <> — plano <strong>{activeRegistrationPlan}</strong></>
+                                                )}
+                                                . Matrícula liberada.
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {/* -------------------------------------- */}
                         </div>
 
                         {/* Turma */}
@@ -299,7 +392,7 @@ export default function CreateEnrollmentPage() {
                         <Confirmation
                             title="Confirmar Matrículas"
                             message={`Deseja efetuar a matrícula do aluno em todos os ${selectedScheduleIds.length} horários selecionados?`}
-                            isPending={isPending || selectedScheduleIds.length === 0}
+                            isPending={isSubmitDisabled}
                             buttonText={`Efetivar (${selectedScheduleIds.length}) Matrículas`}
                             handleConfirm={handleConfirm}
                             classNameButton="w-full sm:w-auto bg-zinc-900 text-white h-12 px-8 text-xl font-semibold disabled:opacity-50"

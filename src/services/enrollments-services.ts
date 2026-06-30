@@ -20,7 +20,11 @@ export async function deleteEnrollment(formData: FormData) {
 }
 
 /**
- * Server Action para criação de uma nova Matrícula (Enrollment)
+ * Server Action para criação de uma nova Matrícula (Enrollment).
+ *
+ * REGRA: o aluno só pode ser matriculado em uma turma se ele possuir ao
+ * menos uma Inscrição em Plano (Registration) com status ACTIVE. Caso
+ * contrário, a operação é bloqueada com uma mensagem explicativa.
  */
 export async function createEnrollment(
   prevState: FormState, 
@@ -30,10 +34,8 @@ export async function createEnrollment(
   const trainingGroupId = formData.get("trainingGroupId") as string;
   const status = formData.get("status") as "ACTIVE" | "INACTIVE"; 
   
-  // 1. Captura o input oculto contendo o texto JSON dos múltiplos horários
   const scheduleIdsRaw = formData.get("scheduleIds") as string;
   
-  // 2. Converte o texto JSON de volta para um Array de IDs do TypeScript
   let scheduleIds: string[] = [];
   try {
     scheduleIds = scheduleIdsRaw ? JSON.parse(scheduleIdsRaw) : [];
@@ -41,7 +43,6 @@ export async function createEnrollment(
     return { status: "error", message: "Erro de integridade no formato dos horários." };
   }
 
-  // 3. CORREÇÃO DA VALIDAÇÃO: Verifica se aluno, turma ou se a lista de horários está vazia
   if (!studentId || !trainingGroupId || scheduleIds.length === 0) {
     return {
       status: "error",
@@ -50,9 +51,35 @@ export async function createEnrollment(
   }
 
   try {
+    // ----------------------------------------------------------------
+    // REGRA DE NEGÓCIO: aluno precisa ter inscrição ativa em um plano
+    // ----------------------------------------------------------------
+    const activeRegistration = await prisma.registration.findFirst({
+      where: {
+        studentId,
+        status: "ACTIVE",
+      },
+      include: {
+        plan: true,
+      },
+    });
+
+    if (!activeRegistration) {
+      // Busca o nome do aluno só para personalizar a mensagem
+      const student = await prisma.user.findUnique({
+        where: { id: studentId },
+        select: { name: true },
+      });
+
+      return {
+        status: "error",
+        message: `Não é possível matricular ${student?.name ?? "este aluno"} em uma turma pois ele não possui nenhuma inscrição ativa em um plano. Cadastre uma inscrição em plano antes de criar a matrícula.`,
+      };
+    }
+    // ----------------------------------------------------------------
+
     let matriculasCriadas = 0;
 
-    // 4. Loop para cadastrar cada horário selecionado
     for (const scheduleId of scheduleIds) {
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: {
@@ -64,7 +91,7 @@ export async function createEnrollment(
         },
       });
 
-      if (existingEnrollment) continue; // Se já existir, pula para o próximo
+      if (existingEnrollment) continue;
 
       await prisma.enrollment.create({
         data: {
@@ -99,6 +126,7 @@ export async function createEnrollment(
     };
   }
 }
+
 /**
  * Server Action para ATUALIZAÇÃO de uma Matrícula existente
  */
@@ -120,7 +148,6 @@ export async function updateEnrollment(
   }
 
   try {
-    // Verifica se a alteração colide com a matrícula de outro registro no sistema.
     const conflictingEnrollment = await prisma.enrollment.findFirst({
       where: {
         studentId,
@@ -175,27 +202,22 @@ export async function validateEnrollmentData(data: any) {
 
     const query: any = {};
     
-    // Filtro de Status
     if (searchStatus && searchStatus !== 'todos') {
         query.status = searchStatus;
     }
 
-    // Filtro por Nome do Aluno (Relacional)
     if (searchStudentName.trim() !== '') {
         query.student = {
             name: { contains: searchStudentName.trim(), mode: 'insensitive' }
         };
     }
 
-    // Filtro por Nome da Turma (Relacional)
-    // Assumindo que o model TrainingGroup possui um campo "name"
     if (searchGroupName.trim() !== '') {
         query.trainingGroup = {
             name: { contains: searchGroupName.trim(), mode: 'insensitive' }
         };
     }
 
-    // Filtro por data de matrícula (comportamento espelhado do birth_date)
     if (searchYear) {
         const yearNum = parseInt(searchYear);
         let startDate, endDate;
@@ -219,7 +241,6 @@ export async function validateEnrollmentData(data: any) {
         query.enrollmentDate = { gte: startDate, lte: endDate };
     }
 
-    // Busca no Prisma incluindo as relações exigidas pelo frontend
     let enrollments = await prisma.enrollment.findMany({
         where: query,
         include: {
@@ -230,7 +251,6 @@ export async function validateEnrollmentData(data: any) {
         orderBy: { enrollmentDate: 'desc' }
     });
 
-    // Filtro adicional de memória (dia/mês sem ano)
     if (!searchYear && (searchMonth || searchDay)) {
         enrollments = enrollments.filter((enrollment) => {
             if (!enrollment.enrollmentDate) return false;
@@ -253,7 +273,6 @@ export async function validateEnrollmentData(data: any) {
         });
     }
 
-    // Retorna a query reconstruída para debug/persistência se necessário
     query.searchDay = searchDay;
     query.searchMonth = searchMonth;
     query.searchYear = searchYear;

@@ -1,30 +1,33 @@
 /**
- * Rota para GET e POST de registrations (matrícula de aluno em um Plano)
- * GET  -> lista todas as matrículas em planos
- * POST -> cria uma nova matrícula de um aluno em um plano
- *
- * A data de vencimento (dueDate) é calculada automaticamente a partir da
- * data de hoje + duração (period) do plano, a menos que seja explicitamente
- * informada no corpo da requisição.
+ * Rota para GET e POST de registrations (inscrição de aluno em um Plano)
+ * GET  -> lista todas as inscrições
+ *         Aceita ?studentId=xxx para filtrar por aluno (usado pelo cadastro de matrícula)
+ * POST -> cria uma nova inscrição de um aluno em um plano
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calculateDueDate } from '@/utils/registration-utils';
 
-// GET -> lista registrations
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const studentId = searchParams.get('studentId');
+
   const registrations = await prisma.registration.findMany({
+    where: {
+      // Quando studentId é informado, filtra apenas as inscrições daquele aluno
+      ...(studentId ? { studentId } : {}),
+    },
     include: {
       student: true,
       plan: true,
     },
   });
+
   return NextResponse.json(registrations);
 }
 
-// POST -> cria registration
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
@@ -61,7 +64,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       {
-        error: 'Erro ao criar matrícula no plano',
+        error: 'Erro ao criar inscrição no plano',
         details: String(error),
       },
       { status: 500 }

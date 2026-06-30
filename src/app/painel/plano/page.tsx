@@ -78,14 +78,27 @@ export default async function PlanPage({
     }>;
 }) {
     const resolvedSearchParams = await searchParams; 
+    // Criamos uma cópia limpa para evitar mutar o objeto original sem querer
     const params: any = { ...resolvedSearchParams };
 
-    if (params.period && params.period !== "todos") {
-        const p = params.period.toLowerCase().trim();
-        if (p === "mensal" || p === "mes" || p === "mês") params.dbPeriod = "month";
-        if (p === "trimestral") params.dbPeriod = "quarter";
-        if (p === "semestral") params.dbPeriod = "semester";
-        if (p === "anual" || p === "ano") params.dbPeriod = "year";
+    // 1. Limpar campos em branco que vêm da URL para não bugar a busca
+    if (!params.title) delete params.title;
+    if (!params.description) delete params.description;
+    if (!params.price) delete params.price;
+
+    // 2. Tratar a lógica do Período
+    if (params.period) {
+        if (params.period === "todos") {
+            // Se for "todos", removemos o filtro para o Prisma ignorar essa condição
+            delete params.period; 
+        } else {
+            // Sobrescrevemos o próprio 'period' para o Prisma receber em inglês
+            const p = params.period.toLowerCase().trim();
+            if (p === "mensal" || p === "mes" || p === "mês") params.period = "month";
+            else if (p === "trimestral") params.period = "quarter";
+            else if (p === "semestral") params.period = "semester";
+            else if (p === "anual" || p === "ano") params.period = "year";
+        }
     }
 
     const { query }: any = await validateData(params);
